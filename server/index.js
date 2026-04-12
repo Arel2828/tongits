@@ -93,11 +93,38 @@ io.on('connection', (socket) => {
     broadcastState(code, game);
   });
 
+  socket.on("game:respond-challenge", ({ code, response }) => {
+    const game = roomManager.getRoom(code);
+    if (game) {
+      const success = game.respondToChallenge(socket.id, response);
+      if (success) {
+        broadcastState(code, game);
+      }
+    }
+  });
+
   socket.on('game:rematch', ({ code }) => {
     const game = roomManager.getRoom(code);
     if (!game) return;
     game.requestRematch(socket.id);
     broadcastState(code, game);
+  });
+
+  socket.on('chat:send', ({ code, message, username }) => {
+    io.to(code).emit('chat:message', { 
+      id: Date.now().toString(),
+      username, 
+      message, 
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+    });
+  });
+
+  socket.on('voice:signal', ({ code, signal, to }) => {
+    if (to) {
+      io.to(to).emit('voice:signal', { signal, from: socket.id });
+    } else {
+      socket.to(code).emit('voice:signal', { signal, from: socket.id });
+    }
   });
 
   socket.on('disconnect', () => {

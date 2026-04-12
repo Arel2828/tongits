@@ -1,7 +1,14 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Reorder } from "framer-motion";
 import Card from "./Card";
+import { useState, useEffect } from "react";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 interface HandProps {
   cards: any[];
@@ -9,6 +16,8 @@ interface HandProps {
   selectedIndices?: number[];
   onCardClick?: (index: number) => void;
   handCount?: number;
+  onReorder?: (newOrder: any[]) => void;
+  groups?: number[][];
 }
 
 export default function Hand({
@@ -17,38 +26,179 @@ export default function Hand({
   selectedIndices = [],
   onCardClick,
   handCount = 0,
+  onReorder,
+  groups = [],
 }: HandProps) {
-  const displayCards = isOpponent ? Array.from({ length: handCount }) : cards;
+  const [items, setItems] = useState<any[]>([]);
+
+  useEffect(() => {
+    // When cards or groups change, we want to update our local items.
+    // We attach the original index to each card to maintain stable, unique keys.
+    const cardsWithIndices = cards.map((card, idx) => ({ ...card, originalIndex: idx }));
+    let newItems = [...cardsWithIndices];
+    
+    if (groups.length > 0) {
+      const groupedCards = groups.flat().map(idx => cardsWithIndices[idx]).filter(Boolean);
+      const nonGroupedCards = cardsWithIndices.filter(c => !groupedCards.includes(c));
+      
+      const sortedGroups = [];
+      for (const groupIndices of groups) {
+        sortedGroups.push(...groupIndices.map(idx => cardsWithIndices[idx]).filter(Boolean));
+      }
+      
+      newItems = [...sortedGroups, ...nonGroupedCards];
+    }
+    
+    // ONLY update state if the content actually changed to avoid infinite loop
+    setItems(prev => {
+      if (prev.length !== newItems.length) return newItems;
+      const isSame = prev.every((item, idx) => 
+        item.suit === newItems[idx]?.suit && 
+        item.rank === newItems[idx]?.rank &&
+        item.originalIndex === newItems[idx]?.originalIndex
+      );
+      return isSame ? prev : newItems;
+    });
+  }, [cards, groups]);
+
+  const handleReorder = (newOrder: any[]) => {
+    let fixedOrder = [...newOrder];
+    
+    groups.forEach(groupIndices => {
+      const groupCards = fixedOrder.filter(c => groupIndices.includes(c.originalIndex));
+      const groupCurrentPositions = groupCards.map(c => fixedOrder.indexOf(c)).sort((a, b) => a - b);
+      
+      const isContiguous = groupCurrentPositions.every((pos, i) => i === 0 || pos === groupCurrentPositions[i-1] + 1);
+      
+      if (!isContiguous) {
+        const avgPos = Math.round(groupCurrentPositions.reduce((a, b) => a + b, 0) / groupCurrentPositions.length);
+        const remaining = fixedOrder.filter(c => !groupCards.includes(c));
+        const insertIdx = Math.max(0, Math.min(avgPos - Math.floor(groupCards.length / 2), remaining.length));
+        remaining.splice(insertIdx, 0, ...groupCards);
+        fixedOrder = remaining;
+      }
+    });
+
+    setItems(fixedOrder);
+    onReorder?.(fixedOrder);
+  };
+
+  const displayCards = isOpponent ? Array.from({ length: handCount }) : items;
+
+  const getGroupColor = (originalIndex: number) => {
+    const groupIdx = groups.findIndex(g => g.includes(originalIndex));
+    if (groupIdx === -1) return null;
+    const colors = ["bg-amber-500/30", "bg-blue-500/30", "bg-purple-500/30", "bg-emerald-500/30"];
+    return colors[groupIdx % colors.length];
+  };
+
+  const isInSameGroupAsNext = (idx: number) => {
+    if (idx >= items.length - 1) return false;
+    const currentOrigIdx = items[idx].originalIndex;
+    const nextOrigIdx = items[idx+1].originalIndex;
+    return groups.some(g => g.includes(currentOrigIdx) && g.includes(nextOrigIdx));
+  };
+
+  if (isOpponent) {
+    return (
+      <div className="flex justify-center -space-x-8 md:-space-x-12 p-8">
+        <AnimatePresence>
+          {displayCards.map((card, index) => (
+            <motion.div
+              key={`opp-${index}`}
+              initial={{ y: 50, opacity: 0, scale: 0.8 }}
+              animate={{ y: 0, opacity: 1, scale: 1, rotate: (index - (displayCards.length - 1) / 2) * -2 }}
+              exit={{ y: -100, opacity: 0, scale: 0.5 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="relative"
+              style={{ zIndex: index }}
+            >
+              <Card suit="S" rank="A" isFaceUp={false} className="w-16 h-24 md:w-20 md:h-30" />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex justify-center -space-x-8 md:-space-x-12 p-8">
+    <Reorder.Group 
+      axis="x" 
+      values={items} 
+      onReorder={handleReorder}
+      className="flex justify-center -space-x-8 md:-space-x-12 p-8 cursor-grab active:cursor-grabbing"
+    >
       <AnimatePresence>
-        {displayCards.map((card, index) => (
-          <motion.div
-            key={isOpponent ? `opp-${index}` : `${card.suit}-${card.rank}-${index}`}
-            initial={{ y: 50, opacity: 0, scale: 0.8 }}
-            animate={{ 
-              y: 0, 
-              opacity: 1, 
-              scale: 1,
-              rotate: (index - (displayCards.length - 1) / 2) * (isOpponent ? -2 : 2)
-            }}
-            exit={{ y: -100, opacity: 0, scale: 0.5 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="relative"
-            style={{ zIndex: index }}
-          >
-            <Card
-              suit={card?.suit || "S"}
-              rank={card?.rank || "A"}
-              isFaceUp={!isOpponent}
-              isSelected={selectedIndices.includes(index)}
-              onClick={() => onCardClick?.(index)}
-              className={isOpponent ? "w-16 h-24 md:w-20 md:h-30" : "w-16 h-24 md:w-24 md:h-36"}
-            />
-          </motion.div>
-        ))}
+        {items.map((card, index) => {
+          const originalIndex = card.originalIndex;
+          const groupColor = getGroupColor(originalIndex);
+          const hasNextTie = isInSameGroupAsNext(index);
+          
+          const selectionIdx = selectedIndices.indexOf(originalIndex);
+          const isSelected = selectionIdx !== -1;
+          const zIndex = isSelected ? (1000 - selectionIdx) : index;
+          
+          return (
+            <Reorder.Item
+              key={`${card.suit}-${card.rank}-${originalIndex}`}
+              value={card}
+              initial={{ y: 50, opacity: 0, scale: 0.8 }}
+              animate={{ 
+                y: 0, 
+                opacity: 1, 
+                scale: 1,
+                rotate: (index - (items.length - 1) / 2) * 2
+              }}
+              exit={{ y: -100, opacity: 0, scale: 0.5 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="relative"
+              style={{ zIndex }}
+            >
+              {groupColor && (
+                <div className={cn(
+                  "absolute -inset-2 rounded-2xl -z-10 blur-sm",
+                  groupColor
+                )} />
+              )}
+              
+              {hasNextTie && (
+                <div className={cn(
+                  "absolute top-1/2 -right-6 w-12 h-4 -translate-y-1/2 -z-20",
+                  groupColor?.replace("/30", "/50")
+                )}>
+                  <svg className="w-full h-full" viewBox="0 0 40 10">
+                    <path 
+                      d="M0,5 Q20,0 40,5" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeDasharray="4 2"
+                      className="text-amber-500/50"
+                    />
+                    <path 
+                      d="M0,5 Q20,10 40,5" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeDasharray="4 2"
+                      className="text-amber-500/50"
+                    />
+                  </svg>
+                </div>
+              )}
+
+              <Card
+                suit={card.suit}
+                rank={card.rank}
+                isFaceUp={true}
+                isSelected={selectedIndices.includes(originalIndex)}
+                onClick={() => onCardClick?.(originalIndex)}
+                className="w-16 h-24 md:w-24 md:h-36"
+              />
+            </Reorder.Item>
+          );
+        })}
       </AnimatePresence>
-    </div>
+    </Reorder.Group>
   );
 }

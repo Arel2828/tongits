@@ -15,6 +15,8 @@ class TongitsGame {
     this.roundReason = ''; // Tongits, Call Draw, Fight
     this.rematchReady = new Set();
     this.disconnectTimeout = null;
+    this.hasDrawn = false; // Track if current player has already drawn
+    this.pendingChallenge = null; // { callerId }
   }
 
   createDeck() {
@@ -74,6 +76,7 @@ class TongitsGame {
     opponent.hand = this.drawPile.splice(0, 12);
     
     this.turnIndex = this.players.findIndex(p => p.isDealer);
+    this.hasDrawn = false;
     this.updatePoints();
     return true;
   }
@@ -85,27 +88,71 @@ class TongitsGame {
   }
 
   drawFromStock(playerId) {
-    if (this.status !== 'PLAYING') return null;
+    if (this.status !== 'PLAYING' || this.hasDrawn) return null;
     const player = this.players[this.turnIndex];
     if (player.id !== playerId) return null;
     if (this.drawPile.length === 0) return this.endGameByDraw();
 
     const card = this.drawPile.pop();
     player.hand.push(card);
+    this.hasDrawn = true;
     this.updatePoints();
     return card;
   }
 
-  drawFromDiscard(playerId) {
-    if (this.status !== 'PLAYING') return null;
+  drawFromDiscard(playerId, cardIndices = [], sapawData = null) {
+    if (this.status !== 'PLAYING' || this.hasDrawn) return null;
     const player = this.players[this.turnIndex];
     if (player.id !== playerId) return null;
     if (this.discardPile.length === 0) return null;
 
-    const card = this.discardPile.pop();
-    player.hand.push(card);
-    this.updatePoints();
-    return card;
+    const topCard = this.discardPile[this.discardPile.length - 1];
+
+    if (sapawData) {
+      // Attempt Sapaw with discard
+      const targetPlayer = this.players.find(p => p.id === sapawData.targetPlayerId);
+      if (!targetPlayer) return null;
+      
+      const originalMeld = targetPlayer.melds[sapawData.meldIndex];
+      const sortedIndices = [...cardIndices].sort((a, b) => b - a);
+      const handCards = sortedIndices.map(idx => player.hand[idx]);
+      
+      if (this.isValidMeld([...originalMeld, topCard, ...handCards])) {
+        // Success: Atomic Draw + Sapaw
+        this.discardPile.pop();
+        sortedIndices.forEach(idx => player.hand.splice(idx, 1));
+        
+        const newMeld = [...originalMeld, topCard, ...handCards];
+        newMeld.sort((a, b) => this.rankToOrder(a.rank) - this.rankToOrder(b.rank));
+        targetPlayer.melds[sapawData.meldIndex] = newMeld;
+        
+        player.hasMelded = true;
+        this.hasDrawn = true;
+        this.updatePoints();
+        return topCard;
+      }
+    } else {
+      // Attempt Meld with discard
+      const sortedIndices = [...cardIndices].sort((a, b) => b - a);
+      const handCards = sortedIndices.map(idx => player.hand[idx]);
+      const potentialMeld = [topCard, ...handCards];
+
+      if (this.isValidMeld(potentialMeld)) {
+        // Success: Atomic Draw + Meld
+        this.discardPile.pop();
+        sortedIndices.forEach(idx => player.hand.splice(idx, 1));
+        
+        potentialMeld.sort((a, b) => this.rankToOrder(a.rank) - this.rankToOrder(b.rank));
+        
+        player.melds.push(potentialMeld);
+        player.hasMelded = true;
+        this.hasDrawn = true;
+        this.updatePoints();
+        return topCard;
+      }
+    }
+
+    return null; // Invalid combination: Discard card stays where it is
   }
 
   discard(playerId, cardIndex) {
@@ -122,6 +169,7 @@ class TongitsGame {
     }
 
     this.turnIndex = (this.turnIndex + 1) % this.players.length;
+    this.hasDrawn = false; // Reset for next player
     this.updatePoints();
     return true;
   }
@@ -136,6 +184,10 @@ class TongitsGame {
 
     if (this.isValidMeld(potentialMeld)) {
       sortedIndices.forEach(idx => player.hand.splice(idx, 1));
+      
+      // Sort the meld for clean visual display (especially for sequences)
+      potentialMeld.sort((a, b) => this.rankToOrder(a.rank) - this.rankToOrder(b.rank));
+      
       player.melds.push(potentialMeld);
       player.hasMelded = true;
       this.updatePoints();
@@ -182,7 +234,11 @@ class TongitsGame {
     const originalMeld = targetPlayer.melds[meldIndex];
     if (this.isValidMeld([...originalMeld, ...cardsToAdd])) {
       sortedIndices.forEach(idx => player.hand.splice(idx, 1));
-      targetPlayer.melds[meldIndex].push(...cardsToAdd);
+      
+      const newMeld = [...originalMeld, ...cardsToAdd];
+      newMeld.sort((a, b) => this.rankToOrder(a.rank) - this.rankToOrder(b.rank));
+      targetPlayer.melds[meldIndex] = newMeld;
+      
       player.hasMelded = true; // Sapaw counts as having melded
       this.updatePoints();
       return true;
@@ -194,16 +250,32 @@ class TongitsGame {
     const player = this.players.find(p => p.id === playerId);
     if (!player || !player.hasMelded) return false;
 
-    // In 2-player Tongits, Call Draw is usually undisputed or challenged.
-    // We'll implement it as: Player calls, opponent can Challenge/Fight or Fold.
-    // For simplicity, we'll auto-compare points for now.
+    // Set state to pending challenge
+    this.status = 'CHALLENGE_PENDING';
+    this.pendingChallenge = { callerId: playerId };
+    return true;
+  }
+
+  respondToChallenge(playerId, response) {
+    if (this.status !== 'CHALLENGE_PENDING' || !this.pendingChallenge) return false;
     
-    const opponent = this.players.find(p => p.id !== playerId);
-    if (player.points < opponent.points) {
-      this.win(player, 'Call Draw');
-    } else {
-      this.win(opponent, 'Fight/Challenge');
+    const caller = this.players.find(p => p.id === this.pendingChallenge.callerId);
+    const opponent = this.players.find(p => p.id !== this.pendingChallenge.callerId);
+    
+    if (playerId !== opponent.id) return false; // Only the challenged person can respond
+
+    if (response === 'FOLD') {
+      this.win(caller, 'Opponent Folded');
+    } else if (response === 'CHALLENGE') {
+      if (caller.points < opponent.points) {
+        this.win(caller, 'Challenge Won');
+      } else {
+        // Defender wins ties
+        this.win(opponent, 'Challenge Won (Defender)');
+      }
     }
+    
+    this.pendingChallenge = null;
     return true;
   }
 
@@ -258,6 +330,7 @@ class TongitsGame {
       roundReason: this.roundReason,
       turnId: this.players[this.turnIndex]?.id,
       rematchCount: this.rematchReady.size,
+      pendingChallenge: this.pendingChallenge,
     };
   }
 }
