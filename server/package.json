@@ -1,0 +1,13 @@
+{
+  "name": "tongits-server",
+  "version": "1.0.0",
+  "description": "Socket.io server for Tongits",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "socket.io": "^4.8.3"
+  }
+}
