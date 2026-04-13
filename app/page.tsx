@@ -70,22 +70,18 @@ export default function Lobby() {
       </div>
 
       <div className="z-10 w-full max-w-md bg-zinc-950/80 border border-zinc-800 p-8 rounded-3xl shadow-2xl backdrop-blur-xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
+        <div className="text-center mb-12 animate-pop-in">
           <h1 className="font-cinzel text-6xl font-bold bg-gradient-to-b from-blue-200 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]">
             TONGITS
           </h1>
           <p className="text-zinc-500 uppercase tracking-widest text-sm mt-2">Premium Multiplayer</p>
-        </motion.div>
+        </div>
 
         <AnimatePresence mode="wait">
           {!isWaiting ? (
             <motion.div
               key="inputs"
-              initial={{ opacity: 0, x: 20 }}
+              initial={false}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               className="space-y-6"
