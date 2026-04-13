@@ -60,7 +60,7 @@ export default function Chat({ roomCode, username }: ChatProps) {
           setIsOpen(!isOpen);
           setHasNewMessage(false);
         }}
-        className="relative w-14 h-14 bg-amber-500 rounded-full flex items-center justify-center text-emerald-950 shadow-lg shadow-amber-500/20 border-2 border-amber-400 group"
+        className="relative w-14 h-14 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-500/20 border-2 border-blue-400 group"
       >
         {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
         {hasNewMessage && !isOpen && (
@@ -108,7 +108,7 @@ export default function Chat({ roomCode, username }: ChatProps) {
                   </div>
                   <div className={`max-w-[85%] px-4 py-2 rounded-2xl text-sm ${
                     msg.username === username 
-                      ? 'bg-amber-500 text-emerald-950 rounded-tr-none' 
+                      ? 'bg-blue-500 text-white rounded-tr-none' 
                       : 'bg-zinc-800 text-white rounded-tl-none'
                   }`}>
                     {msg.message}
@@ -127,11 +127,11 @@ export default function Chat({ roomCode, username }: ChatProps) {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Send a message..."
-                className="flex-1 bg-black/40 border border-white/5 rounded-full px-4 py-2 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-all placeholder:text-zinc-700"
+                className="flex-1 bg-black/40 border border-white/5 rounded-full px-4 py-2 text-xs text-white focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-zinc-700"
               />
               <button
                 type="submit"
-                className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-emerald-950 hover:scale-110 active:scale-95 transition-all"
+                className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white hover:scale-110 active:scale-95 transition-all"
               >
                 <Send size={14} />
               </button>
@@ -142,3 +142,5 @@ export default function Chat({ roomCode, username }: ChatProps) {
     </div>
   );
 }
+
+

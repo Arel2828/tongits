@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  --color-emerald-950: #022c22;
-  --color-emerald-900: #064e3b;
-  --color-emerald-800: #065f46;
-  --color-emerald-700: #047857;
+  --color-slate-950: #020617;
+  --color-slate-900: #0f172a;
+  --color-slate-800: #1e293b;
+  --color-slate-700: #334155;
 
   --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
   --background-image-gradient-conic: conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops));
@@ -29,9 +29,9 @@
   --background-start-rgb: 10, 10, 10;
   --background-end-rgb: 0, 0, 0;
 
-  --emerald-felt: #064e3b;
-  --gold-primary: #fbbf24;
-  --gold-glow: rgba(251, 191, 36, 0.4);
+  --slate-felt: #0f172a;
+  --gold-primary: #3b82f6;
+  --gold-glow: rgba(59,130,246, 0.4);
 }
 
 body {
@@ -48,24 +48,24 @@ body {
 
 @layer components {
   .felt-table {
-    @apply relative bg-emerald-900 border-[12px] border-amber-900 rounded-[100px] shadow-[inset_0_0_100px_rgba(0,0,0,0.5),0_20px_50px_rgba(0,0,0,0.8)];
-    background-image: radial-gradient(circle, rgba(6, 78, 59, 1) 0%, rgba(2, 44, 34, 1) 100%);
+    @apply relative bg-slate-900 border-[12px] border-blue-900 rounded-[100px] shadow-[inset_0_0_100px_rgba(0,0,0,0.5),0_20px_50px_rgba(0,0,0,0.8)];
+    background-image: radial-gradient(circle, rgba(15,23,42, 1) 0%, rgba(2,6,23, 1) 100%);
   }
 
-  .btn-gold {
-    @apply px-8 py-3 bg-amber-500 hover:bg-amber-400 text-emerald-950 font-bold rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(251,191,36,0.5)] hover:shadow-[0_0_25px_rgba(251,191,36,0.8)] active:scale-95 uppercase tracking-wider;
+  .btn-blue {
+    @apply px-8 py-3 bg-blue-500 hover:bg-blue-400 text-white font-bold rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.8)] active:scale-95 uppercase tracking-wider;
   }
 
-  .btn-outline-gold {
-    @apply px-8 py-3 border-2 border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-emerald-950 font-bold rounded-full transition-all duration-300 active:scale-95 uppercase tracking-wider;
+  .btn-outline-blue {
+    @apply px-8 py-3 border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-bold rounded-full transition-all duration-300 active:scale-95 uppercase tracking-wider;
   }
 
   .card-glow {
-    @apply shadow-[0_0_15px_rgba(251,191,36,0.6)];
+    @apply shadow-[0_0_15px_rgba(59,130,246,0.6)];
   }
 
   .text-glow {
-    text-shadow: 0 0 10px rgba(251, 191, 36, 0.8), 0 0 20px rgba(251, 191, 36, 0.4);
+    text-shadow: 0 0 10px rgba(59,130,246, 0.8), 0 0 20px rgba(59,130,246, 0.4);
   }
 }
 
@@ -77,9 +77,11 @@ body {
   background: #020617;
 }
 ::-webkit-scrollbar-thumb {
-  background: #064e3b;
+  background: #0f172a;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #065f46;
+  background: #1e293b;
 }
+
+

@@ -88,7 +88,7 @@ export default function Hand({
   const getGroupColor = (originalIndex: number) => {
     const groupIdx = groups.findIndex(g => g.includes(originalIndex));
     if (groupIdx === -1) return null;
-    const colors = ["bg-amber-500/30", "bg-blue-500/30", "bg-purple-500/30", "bg-emerald-500/30"];
+    const colors = ["bg-blue-500/30", "bg-blue-500/30", "bg-purple-500/30", "bg-slate-500/30"];
     return colors[groupIdx % colors.length];
   };
 
@@ -173,7 +173,7 @@ export default function Hand({
                       stroke="currentColor" 
                       strokeWidth="2" 
                       strokeDasharray="4 2"
-                      className="text-amber-500/50"
+                      className="text-blue-500/50"
                     />
                     <path 
                       d="M0,5 Q20,10 40,5" 
@@ -181,7 +181,7 @@ export default function Hand({
                       stroke="currentColor" 
                       strokeWidth="2" 
                       strokeDasharray="4 2"
-                      className="text-amber-500/50"
+                      className="text-blue-500/50"
                     />
                   </svg>
                 </div>
@@ -202,3 +202,5 @@ export default function Hand({
     </Reorder.Group>
   );
 }
+
+

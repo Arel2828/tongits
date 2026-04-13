@@ -76,7 +76,7 @@ export default function Card({
       onClick={onClick}
       className={cn(
         "relative w-24 h-36 bg-white rounded-xl border-2 border-zinc-200 shadow-xl flex flex-col p-2 cursor-pointer select-none transition-all",
-        isSelected && "scale-110 -translate-y-6 ring-4 ring-amber-400 shadow-[0_0_30px_rgba(251,191,36,0.6)] z-50",
+        isSelected && "scale-110 -translate-y-6 ring-4 ring-blue-400 shadow-[0_0_30px_rgba(59,130,246,0.6)] z-50",
         className
       )}
     >
@@ -99,3 +99,5 @@ export default function Card({
     </motion.div>
   );
 }
+
+

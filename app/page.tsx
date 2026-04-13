@@ -52,7 +52,7 @@ export default function Lobby() {
       initial={{ y: "110vh", opacity: 0 }}
       animate={{ y: "-10vh", opacity: [0, 0.2, 0] }}
       transition={{ duration: 15, repeat: Infinity, delay, ease: "linear" }}
-      className="absolute text-emerald-800/20"
+      className="absolute text-slate-800/20"
       style={{ left: `${x}%` }}
     >
       <Icon size={120} />
@@ -75,7 +75,7 @@ export default function Lobby() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="font-cinzel text-6xl font-bold bg-gradient-to-b from-amber-200 to-amber-500 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(251,191,36,0.3)]">
+          <h1 className="font-cinzel text-6xl font-bold bg-gradient-to-b from-blue-200 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]">
             TONGITS
           </h1>
           <p className="text-zinc-500 uppercase tracking-widest text-sm mt-2">Premium Multiplayer</p>
@@ -97,13 +97,13 @@ export default function Lobby() {
                     placeholder="Enter Username"
                     value={usernameInput}
                     onChange={(e) => setUsernameInput(e.target.value)}
-                    className="w-full bg-zinc-900 border-b-2 border-zinc-700 p-4 pt-6 focus:border-amber-500 outline-none transition-all rounded-t-lg font-medium"
+                    className="w-full bg-zinc-900 border-b-2 border-zinc-700 p-4 pt-6 focus:border-blue-500 outline-none transition-all rounded-t-lg font-medium"
                   />
                   <label className="absolute left-4 top-1 text-[10px] text-zinc-500 uppercase tracking-tighter">Username</label>
                 </div>
 
                 <div className="flex gap-4">
-                  <button onClick={handleCreateRoom} className="flex-1 btn-gold">
+                  <button onClick={handleCreateRoom} className="flex-1 btn-blue">
                     Create Room
                   </button>
                 </div>
@@ -121,11 +121,11 @@ export default function Lobby() {
                       placeholder="Room Code (e.g. TNG-1234)"
                       value={roomCodeInput}
                       onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase())}
-                      className="w-full bg-zinc-900 border-b-2 border-zinc-700 p-4 pt-6 focus:border-amber-500 outline-none transition-all rounded-t-lg font-medium"
+                      className="w-full bg-zinc-900 border-b-2 border-zinc-700 p-4 pt-6 focus:border-blue-500 outline-none transition-all rounded-t-lg font-medium"
                     />
                     <label className="absolute left-4 top-1 text-[10px] text-zinc-500 uppercase tracking-tighter">Room Code</label>
                   </div>
-                  <button onClick={handleJoinRoom} className="w-full btn-outline-gold">
+                  <button onClick={handleJoinRoom} className="w-full btn-outline-blue">
                     Join Room
                   </button>
                 </div>
@@ -138,9 +138,9 @@ export default function Lobby() {
               animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center justify-center py-12 space-y-6"
             >
-              <Loader2 className="animate-spin text-amber-500" size={64} />
+              <Loader2 className="animate-spin text-blue-500" size={64} />
               <div className="text-center">
-                <h3 className="text-xl font-bold text-amber-200">Joining Game...</h3>
+                <h3 className="text-xl font-bold text-blue-200">Joining Game...</h3>
                 <p className="text-zinc-500">Preparing the table</p>
               </div>
             </motion.div>
@@ -154,3 +154,5 @@ export default function Lobby() {
     </main>
   );
 }
+
+

@@ -50,7 +50,7 @@ export default function MeldZone({
               <Card 
                 key={`${card.suit}-${card.rank}-${cIdx}`} 
                 {...card} 
-                className="w-16 h-24 border-zinc-100 shadow-amber-400/20"
+                className="w-16 h-24 border-zinc-100 shadow-blue-400/20"
               />
             ))}
           </div>
@@ -59,3 +59,5 @@ export default function MeldZone({
     </div>
   );
 }
+
+
