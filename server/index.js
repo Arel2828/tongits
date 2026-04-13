@@ -58,10 +58,10 @@ io.on('connection', (socket) => {
     broadcastState(code, game);
   });
 
-  socket.on('game:draw-discard', ({ code }) => {
+  socket.on('game:draw-discard', ({ code, cardIndices, sapawData }) => {
     const game = roomManager.getRoom(code);
     if (!game) return;
-    game.drawFromDiscard(socket.id);
+    game.drawFromDiscard(socket.id, cardIndices, sapawData);
     broadcastState(code, game);
   });
 

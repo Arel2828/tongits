@@ -101,7 +101,7 @@ export default function Hand({
 
   if (isOpponent) {
     return (
-      <div className="flex justify-center -space-x-8 md:-space-x-12 p-8">
+      <div className="flex justify-center -space-x-6 sm:-space-x-8 md:-space-x-12 p-2 sm:p-4 md:p-8 max-w-full">
         <AnimatePresence>
           {displayCards.map((card, index) => (
             <motion.div
@@ -113,7 +113,7 @@ export default function Hand({
               className="relative"
               style={{ zIndex: index }}
             >
-              <Card suit="S" rank="A" isFaceUp={false} className="w-16 h-24 md:w-20 md:h-30" />
+              <Card suit="S" rank="A" isFaceUp={false} className="w-12 h-20 sm:w-16 sm:h-24 md:w-20 md:h-32" />
             </motion.div>
           ))}
         </AnimatePresence>
@@ -126,7 +126,7 @@ export default function Hand({
       axis="x" 
       values={items} 
       onReorder={handleReorder}
-      className="flex justify-center -space-x-8 md:-space-x-12 p-8 cursor-grab active:cursor-grabbing"
+      className="flex justify-center -space-x-6 sm:-space-x-8 md:-space-x-12 p-2 sm:p-4 md:p-8 cursor-grab active:cursor-grabbing max-w-full"
     >
       <AnimatePresence>
         {items.map((card, index) => {
@@ -193,7 +193,7 @@ export default function Hand({
                 isFaceUp={true}
                 isSelected={selectedIndices.includes(originalIndex)}
                 onClick={() => onCardClick?.(originalIndex)}
-                className="w-16 h-24 md:w-24 md:h-36"
+                className="w-12 h-20 sm:w-16 sm:h-24 md:w-24 md:h-36"
               />
             </Reorder.Item>
           );

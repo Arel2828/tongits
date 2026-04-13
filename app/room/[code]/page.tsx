@@ -116,7 +116,7 @@ export default function GameRoom() {
   if (!gameState) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-black space-y-4">
-        <Loader2 className="animate-spin text-amber-500" size={48} />
+        <Loader2 className="animate-spin text-blue-500" size={48} />
         <p className="text-zinc-500 uppercase tracking-widest text-sm">Synchronizing Table...</p>
       </div>
     );
@@ -133,7 +133,7 @@ export default function GameRoom() {
         <div className="flex flex-col gap-2">
             <div className="flex items-center gap-3">
                 <div className="flex flex-col items-start gap-0.5">
-                    <div className={`px-3 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border ${!isMyTurn ? 'bg-amber-500 text-emerald-950 border-amber-400 animate-pulse' : 'bg-zinc-800 text-zinc-500 border-zinc-700'}`}>
+                    <div className={`px-3 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border ${!isMyTurn ? 'bg-blue-500 text-white border-blue-400 animate-pulse' : 'bg-zinc-800 text-zinc-500 border-zinc-700'}`}>
                         {opponent?.username || "Waiting..."}
                     </div>
                     <p className="text-[8px] text-zinc-600 px-1 uppercase tracking-tighter">Opponent</p>
@@ -144,7 +144,7 @@ export default function GameRoom() {
                 <div className="flex flex-col items-start gap-0.5">
                     <div className="bg-zinc-900 border border-zinc-800 px-3 py-0.5 rounded-md flex items-center gap-2">
                         <span className="text-zinc-600 text-[8px] uppercase tracking-widest">ID</span>
-                        <span className="font-mono text-amber-500 font-bold text-[10px]">{code}</span>
+                        <span className="font-mono text-blue-500 font-bold text-[10px]">{code}</span>
                     </div>
                 </div>
             </div>
@@ -163,7 +163,7 @@ export default function GameRoom() {
                     <div className="flex items-center gap-2">
                         <button 
                             onClick={toggleMute}
-                            className={`p-2 rounded-full transition-all shadow-lg active:scale-95 ${isMuted ? 'bg-red-500 text-white' : 'bg-green-500 text-emerald-950'}`}
+                            className={`p-2 rounded-full transition-all shadow-lg active:scale-95 ${isMuted ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}
                         >
                             {isMuted ? <MicOff size={14} /> : <Mic size={14} />}
                         </button>
@@ -175,8 +175,8 @@ export default function GameRoom() {
                         </button>
                         {remoteStream && (
                             <div className="flex items-center gap-1 ml-2">
-                                <Volume2 size={12} className="text-amber-500 animate-pulse" />
-                                <span className="text-[10px] text-amber-500 font-bold uppercase tracking-tighter">Live</span>
+                                <Volume2 size={12} className="text-blue-500 animate-pulse" />
+                                <span className="text-[10px] text-blue-500 font-bold uppercase tracking-tighter">Live</span>
                             </div>
                         )}
                     </div>
@@ -185,7 +185,7 @@ export default function GameRoom() {
         </div>
 
         <div className="flex flex-col items-end gap-0 md:gap-1">
-          <div className="text-amber-500/30 text-[10px] md:text-xs font-bold uppercase tracking-widest leading-none">Draw Pile</div>
+          <div className="text-blue-500/30 text-[10px] md:text-xs font-bold uppercase tracking-widest leading-none">Draw Pile</div>
           <div className="text-xl md:text-2xl font-cinzel font-bold text-white leading-none">{gameState.drawPileCount}</div>
         </div>
       </div>
@@ -220,14 +220,14 @@ export default function GameRoom() {
         <div className="flex items-center gap-6 md:gap-16">
           {/* Deck Pile */}
           <div 
-            className={`relative w-16 h-24 md:w-24 md:h-36 rounded-xl border-2 md:border-4 border-white/20 bg-zinc-900 cursor-pointer hover:border-amber-500 transition-colors ${(!isMyTurn || gameState.hasDrawn) ? 'pointer-events-none opacity-50' : ''}`}
+            className={`relative w-12 h-20 sm:w-16 sm:h-24 md:w-24 md:h-36 rounded-xl border-2 md:border-4 border-white/20 bg-zinc-900 cursor-pointer hover:border-blue-500 transition-colors ${(!isMyTurn || gameState.hasDrawn) ? 'pointer-events-none opacity-50' : ''}`}
             onClick={() => handleAction("draw-stock")}
           >
             <div className="absolute inset-0 bg-zinc-800 rounded-lg m-0.5 md:m-1 flex items-center justify-center">
                  <div className="text-zinc-600 font-cinzel text-[8px] md:text-xs font-bold -rotate-45">TONGITS</div>
             </div>
             {gameState.drawPileCount > 0 && (
-                <div className="absolute -right-2 -top-2 w-6 h-6 md:w-8 md:h-8 bg-amber-500 rounded-full flex items-center justify-center text-emerald-950 font-bold text-[10px] md:text-xs shadow-lg">
+                <div className="absolute -right-2 -top-2 w-6 h-6 md:w-8 md:h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-[10px] md:text-xs shadow-lg">
                     {gameState.drawPileCount}
                 </div>
             )}
@@ -236,8 +236,8 @@ export default function GameRoom() {
           {/* Discard Pile */}
           <div 
             className={cn(
-                "relative w-16 h-24 md:w-24 md:h-36 rounded-xl border-2 md:border-4 transition-all duration-300 flex items-center justify-center cursor-pointer",
-                isDiscardPending ? "border-amber-500 shadow-[0_0_20px_rgba(251,191,36,0.5)] scale-110 z-30" : "border-dashed border-white/10 hover:border-amber-500/50",
+                "relative w-12 h-20 sm:w-16 sm:h-24 md:w-24 md:h-36 rounded-xl border-2 md:border-4 transition-all duration-300 flex items-center justify-center cursor-pointer",
+                isDiscardPending ? "border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.5)] scale-110 z-30" : "border-dashed border-white/10 hover:border-blue-500/50",
                 (!isMyTurn || gameState.hasDrawn) && !isDiscardPending ? "pointer-events-none opacity-30" : ""
             )}
             onClick={() => {
@@ -256,7 +256,7 @@ export default function GameRoom() {
                  <span className="text-[10px] text-white/20 uppercase tracking-widest text-center px-1">Empty</span>
              )}
              {isDiscardPending && (
-                 <div className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap bg-amber-500 text-emerald-950 text-[8px] md:text-[10px] font-black px-2 md:px-3 py-1 rounded-full animate-bounce">
+                 <div className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap bg-blue-500 text-white text-[8px] md:text-[10px] font-black px-2 md:px-3 py-1 rounded-full animate-bounce">
                     SELECT MELD TO SAPAW
                  </div>
              )}
@@ -274,7 +274,7 @@ export default function GameRoom() {
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.8, opacity: 0 }}
-                    className="px-6 py-1.5 bg-amber-500 text-emerald-900 font-black rounded-full text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(251,191,36,0.4)] animate-pulse"
+                    className="px-6 py-1.5 bg-blue-500 text-slate-900 font-black rounded-full text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(59,130,246,0.4)] animate-pulse"
                 >
                     Your Turn
                 </motion.div>
@@ -286,7 +286,7 @@ export default function GameRoom() {
           <button 
             disabled={!isMyTurn || selectedCards.length < 3}
             onClick={() => handleAction("meld", { cardIndices: selectedCards })}
-            className="px-4 py-2.5 bg-zinc-900 border border-amber-500/30 text-amber-500 rounded-xl disabled:opacity-30 disabled:grayscale uppercase text-[10px] font-bold tracking-widest hover:bg-amber-500 hover:text-emerald-950 transition-all"
+            className="px-4 py-2.5 bg-zinc-900 border border-blue-500/30 text-blue-500 rounded-xl disabled:opacity-30 disabled:grayscale uppercase text-[10px] font-bold tracking-widest hover:bg-blue-500 hover:text-white transition-all"
           >
             Meld
           </button>
@@ -302,7 +302,7 @@ export default function GameRoom() {
           <button 
             disabled={!isMyTurn || !me?.hasMelded}
             onClick={() => handleAction("call-draw")}
-            className="px-4 py-2.5 bg-amber-500 text-emerald-950 rounded-xl disabled:opacity-30 disabled:grayscale uppercase text-[10px] font-black tracking-widest hover:scale-105 transition-all shadow-lg col-span-2 md:col-span-1"
+            className="px-4 py-2.5 bg-blue-500 text-white rounded-xl disabled:opacity-30 disabled:grayscale uppercase text-[10px] font-black tracking-widest hover:scale-105 transition-all shadow-lg col-span-2 md:col-span-1"
           >
             Call Draw
           </button>
@@ -334,7 +334,7 @@ export default function GameRoom() {
         <div className="w-full relative pb-4">
             <div className="flex flex-col items-center mb-1">
                 <span className="text-[10px] text-zinc-500 uppercase tracking-widest leading-none">Your Points</span>
-                <span className="text-lg md:text-xl font-bold text-amber-500">{me?.points || 0}</span>
+                <span className="text-lg md:text-xl font-bold text-blue-500">{me?.points || 0}</span>
             </div>
           <Hand 
             cards={me?.hand || []} 
@@ -357,10 +357,10 @@ export default function GameRoom() {
             <motion.div 
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              className="bg-zinc-900 border-2 border-amber-500/50 p-8 rounded-3xl shadow-2xl max-w-md w-full text-center"
+              className="bg-zinc-900 border-2 border-blue-500/50 p-8 rounded-3xl shadow-2xl max-w-md w-full text-center"
             >
-              <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <AlertCircle className="text-amber-500" size={32} />
+              <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <AlertCircle className="text-blue-500" size={32} />
               </div>
 
               <h2 className="text-2xl font-cinzel font-black text-white mb-2 uppercase tracking-widest">
@@ -383,15 +383,15 @@ export default function GameRoom() {
                   </button>
                   <button 
                     onClick={() => handleAction("respond-challenge", { response: 'CHALLENGE' })}
-                    className="py-4 bg-amber-500 hover:bg-amber-400 text-emerald-950 rounded-xl uppercase text-xs font-black tracking-widest transition-all shadow-lg"
+                    className="py-4 bg-blue-500 hover:bg-blue-400 text-white rounded-xl uppercase text-xs font-black tracking-widest transition-all shadow-lg"
                   >
                     Challenge
                   </button>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-4">
-                  <Loader2 className="animate-spin text-amber-500" size={24} />
-                  <span className="text-[10px] text-amber-500 uppercase font-black tracking-[0.2em] animate-pulse">
+                  <Loader2 className="animate-spin text-blue-500" size={24} />
+                  <span className="text-[10px] text-blue-500 uppercase font-black tracking-[0.2em] animate-pulse">
                     Waiting for Opponent...
                   </span>
                 </div>
@@ -412,27 +412,27 @@ export default function GameRoom() {
             <motion.div 
                 initial={{ scale: 0.5, y: 100 }}
                 animate={{ scale: 1, y: 0 }}
-                className="bg-zinc-900 border-2 border-amber-500 p-12 rounded-[40px] shadow-[0_0_100px_rgba(251,191,36,0.3)] text-center max-w-lg w-full"
+                className="bg-zinc-900 border-2 border-blue-500 p-12 rounded-[40px] shadow-[0_0_100px_rgba(59,130,246,0.3)] text-center max-w-lg w-full"
             >
                 <div className="flex justify-center mb-6">
-                    <div className="w-24 h-24 bg-amber-500 flex items-center justify-center rounded-full shadow-[0_0_40px_rgba(251,191,36,0.5)]">
-                        <Trophy size={48} className="text-emerald-900" />
+                    <div className="w-24 h-24 bg-blue-500 flex items-center justify-center rounded-full shadow-[0_0_40px_rgba(59,130,246,0.5)]">
+                        <Trophy size={48} className="text-slate-900" />
                     </div>
                 </div>
                 
-                <h2 className="font-cinzel text-5xl font-bold bg-gradient-to-b from-amber-200 to-amber-500 bg-clip-text text-transparent mb-2">
+                <h2 className="font-cinzel text-5xl font-bold bg-gradient-to-b from-blue-200 to-blue-500 bg-clip-text text-transparent mb-2">
                     {gameState.winner?.id === socket.id ? "VICTORY!" : "DEFEAT"}
                 </h2>
                 
                 <p className="text-zinc-500 uppercase tracking-widest text-sm mb-12">
-                   Winner: <span className="text-amber-500 font-bold">{gameState.winner?.username}</span> via <span className="text-white">{gameState.roundReason}</span>
+                   Winner: <span className="text-blue-500 font-bold">{gameState.winner?.username}</span> via <span className="text-white">{gameState.roundReason}</span>
                 </p>
 
                 <div className="mb-8 space-y-2">
                     {gameState.players.map((p: any) => (
                         <div key={p.id} className="flex justify-between items-center bg-black/40 p-4 rounded-2xl border border-white/5">
                             <div className="flex items-center gap-3">
-                                <span className={p.id === gameState.winner?.id ? "text-amber-500" : "text-zinc-500"}>
+                                <span className={p.id === gameState.winner?.id ? "text-blue-500" : "text-zinc-500"}>
                                     {p.username}
                                 </span>
                                 {p.isBurned && (
@@ -447,14 +447,14 @@ export default function GameRoom() {
                 <div className="space-y-4">
                   <button 
                     onClick={() => handleAction("rematch")}
-                    className="w-full btn-gold py-4 flex items-center justify-center gap-2"
+                    className="w-full btn-blue py-4 flex items-center justify-center gap-2"
                   >
                     <RotateCcw size={20} />
                     Play Again
                   </button>
                   <button 
                     onClick={() => router.push("/")}
-                    className="w-full btn-outline-gold py-4 flex items-center justify-center gap-2"
+                    className="w-full btn-outline-blue py-4 flex items-center justify-center gap-2"
                   >
                     <Home size={20} />
                     Leave Room
@@ -494,3 +494,4 @@ export default function GameRoom() {
     </main>
   );
 }
+
