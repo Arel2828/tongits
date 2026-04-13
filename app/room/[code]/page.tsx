@@ -115,9 +115,16 @@ export default function GameRoom() {
 
   if (!gameState) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-black space-y-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-black space-y-6">
         <Loader2 className="animate-spin text-blue-500" size={48} />
         <p className="text-zinc-500 uppercase tracking-widest text-sm">Synchronizing Table...</p>
+        <button 
+          onClick={() => router.push("/")}
+          className="mt-8 flex items-center justify-center gap-2 px-6 py-2 border border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-full text-xs font-bold uppercase tracking-widest transition-all"
+        >
+          <Home size={14} />
+          Go Back
+        </button>
       </div>
     );
   }
