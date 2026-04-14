@@ -139,6 +139,17 @@ export default function GameRoom() {
       <div className="sticky top-0 z-40 w-full bg-zinc-950/60 backdrop-blur-xl border-b border-white/5 flex items-center justify-between p-4 px-6 gap-4">
         <div className="flex flex-col gap-2">
             <div className="flex items-center gap-3">
+                {/* Back Button */}
+                <button 
+                  onClick={() => router.push("/")}
+                  className="p-1.5 md:p-2 bg-zinc-800 hover:bg-red-500/20 text-zinc-400 hover:text-red-500 rounded-full transition-all active:scale-95 border border-transparent hover:border-red-500/50"
+                  title="Leave Game"
+                >
+                  <Home size={14} />
+                </button>
+
+                <div className="h-6 w-[1px] bg-white/5 mx-0.5" />
+
                 <div className="flex flex-col items-start gap-0.5">
                     <div className={`px-3 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border ${!isMyTurn ? 'bg-blue-500 text-white border-blue-400 animate-pulse' : 'bg-zinc-800 text-zinc-500 border-zinc-700'}`}>
                         {opponent?.username || "Waiting..."}
