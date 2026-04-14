@@ -10,13 +10,19 @@ import Card from "@/components/Card";
 import MeldZone from "@/components/MeldZone";
 import Chat from "@/components/Chat";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
-import { Loader2, Trophy, AlertCircle, RotateCcw, Home, Mic, MicOff, Volume2, X, Group, Ungroup, Copy, Check } from "lucide-react";
+import { Loader2, Trophy, AlertCircle, RotateCcw, Home, Mic, MicOff, Volume2, X, Group, Ungroup, Copy, Check, Music, Music2 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+const BGM_PLAYLIST = [
+  "/mp3/Roulette Voltage.mp3",
+  "/mp3/Roulette Voltage (1).mp3",
+  "/mp3/Spade Static.mp3"
+];
 
 export default function GameRoom() {
   const { code } = useParams();
@@ -25,9 +31,12 @@ export default function GameRoom() {
   const [groups, setGroups] = useState<number[][]>([]);
   const [isDiscardPending, setIsDiscardPending] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isMusicMuted, setIsMusicMuted] = useState(false);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const router = useRouter();
   const socket = getSocket();
   const audioRef = useRef<HTMLAudioElement>(null);
+  const bgmRef = useRef<HTMLAudioElement>(null);
   const { isVoiceJoined, isMuted, remoteStream, joinVoice, leaveVoice, toggleMute } = useVoiceChat(code as string);
 
   const me = gameState?.players?.find((p: any) => p.id === socket?.id);
@@ -39,6 +48,14 @@ export default function GameRoom() {
       audioRef.current.srcObject = remoteStream;
     }
   }, [remoteStream]);
+
+  useEffect(() => {
+    if (bgmRef.current && !isMusicMuted) {
+        bgmRef.current.play().catch(() => {
+            console.log("Autoplay waiting for interaction");
+        });
+    }
+  }, [currentTrackIndex, isMusicMuted]);
 
   useEffect(() => {
     socket.on("game:update", (state) => {
@@ -208,6 +225,17 @@ export default function GameRoom() {
                         )}
                     </div>
                 )}
+                
+                <button 
+                    onClick={() => setIsMusicMuted(!isMusicMuted)}
+                    className={cn(
+                        "bg-pink-50 hover:bg-pink-100 p-2 border-2 border-pink-100 transition-all flex items-center gap-2 px-4 active:scale-95 group",
+                        isMusicMuted ? "text-pink-200" : "text-pink-500"
+                    )}
+                >
+                    {isMusicMuted ? <Music2 size={12} className="opacity-40" /> : <Music size={12} className="animate-pulse" />}
+                    <span className="text-[8px] uppercase font-press-start">{isMusicMuted ? "Off" : "On"}</span>
+                </button>
             </div>
         </div>
 
@@ -510,6 +538,15 @@ export default function GameRoom() {
       </AnimatePresence>
 
       <audio ref={audioRef} autoPlay />
+      <audio 
+        ref={bgmRef} 
+        src={BGM_PLAYLIST[currentTrackIndex]} 
+        autoPlay 
+        muted={isMusicMuted}
+        onEnded={() => {
+            setCurrentTrackIndex((prev) => (prev + 1) % BGM_PLAYLIST.length);
+        }}
+      />
       <Chat roomCode={code as string} username={username || "Player"} />
     </main>
   );
