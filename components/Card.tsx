@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Spade, Heart, Diamond, Club } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import RankFive from "./RankFive";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -82,7 +83,11 @@ export default function Card({
       )}
     >
       <div className={cn("flex flex-col items-start leading-none", colorClass)}>
-        <span className="text-xs sm:text-sm md:text-xl font-bold font-pixelify">{rank}</span>
+        {rank === "5" ? (
+          <RankFive className="mb-1" />
+        ) : (
+          <span className="text-xs sm:text-sm md:text-xl font-bold font-pixelify">{rank}</span>
+        )}
         {Icon && <Icon className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4" fill="currentColor" />}
       </div>
 
@@ -94,7 +99,11 @@ export default function Card({
       </div>
 
       <div className={cn("flex flex-col items-start leading-none rotate-180 self-end", colorClass)}>
-        <span className="text-xs sm:text-sm md:text-xl font-bold font-pixelify">{rank}</span>
+        {rank === "5" ? (
+          <RankFive className="mb-1" />
+        ) : (
+          <span className="text-xs sm:text-sm md:text-xl font-bold font-pixelify">{rank}</span>
+        )}
         {Icon && <Icon className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4" fill="currentColor" />}
       </div>
     </motion.div>
