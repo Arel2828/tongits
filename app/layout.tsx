@@ -1,13 +1,21 @@
 import type { Metadata } from "next";
-import { Inter, Cinzel } from "next/font/google";
+import { Press_Start_2P, Pixelify_Sans } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const cinzel = Cinzel({ subsets: ["latin"], variable: "--font-cinzel" });
+const pressStart = Press_Start_2P({ 
+  weight: "400", 
+  subsets: ["latin"], 
+  variable: "--font-press-start" 
+});
+
+const pixelify = Pixelify_Sans({ 
+  subsets: ["latin"], 
+  variable: "--font-pixelify" 
+});
 
 export const metadata: Metadata = {
-  title: "Tongits Online - Premium Filipino Card Game",
-  description: "Play Tongits with friends in real-time. A premium, cinematic Filipino card game experience.",
+  title: "Tongits Online - Pink Pixel Edition",
+  description: "A bold, vibrant, and pixel-perfect Tongits card game experience.",
 };
 
 export default function RootLayout({
@@ -17,9 +25,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${cinzel.variable} font-sans antialiased bg-black text-white`}>
+      <body className={`${pressStart.variable} ${pixelify.variable} font-sans antialiased bg-black text-white`}>
         {children}
       </body>
     </html>
   );
 }
+

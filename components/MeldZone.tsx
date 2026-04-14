@@ -18,20 +18,20 @@ export default function MeldZone({
   opponentId,
 }: MeldZoneProps) {
   return (
-    <div className="flex flex-col gap-8 w-full max-w-4xl px-4">
+    <div className="flex flex-col gap-6 w-full max-w-4xl px-4">
       {/* Opponent's Melds */}
-      <div className="flex flex-wrap justify-center gap-6 opacity-80 min-h-[100px] border-b border-white/10 pb-4">
+      <div className="flex flex-wrap justify-center gap-4 opacity-70 min-h-[80px] border-b-2 border-pink-100 pb-6">
         {opponentMelds.map((meld, mIdx) => (
           <div 
             key={`opp-meld-${mIdx}`} 
-            className="flex -space-x-6 sm:-space-x-8 md:-space-x-12 cursor-pointer hover:scale-105 transition-transform"
+            className="flex -space-x-8 sm:-space-x-10 md:-space-x-14 cursor-pointer hover:scale-105 transition-transform"
             onClick={() => onSapaw?.(opponentId, mIdx)}
           >
             {meld.map((card, cIdx) => (
               <Card 
                 key={`${card.suit}-${card.rank}-${cIdx}`} 
                 {...card} 
-                className="w-12 h-20 sm:w-16 sm:h-24 md:w-20 md:h-32 border-zinc-300"
+                className="w-10 h-16 sm:w-14 sm:h-20 md:w-18 md:h-28"
               />
             ))}
           </div>
@@ -39,18 +39,18 @@ export default function MeldZone({
       </div>
 
       {/* Player's Melds */}
-      <div className="flex flex-wrap justify-center gap-6 min-h-[100px]">
+      <div className="flex flex-wrap justify-center gap-4 min-h-[80px]">
         {playerMelds.map((meld, mIdx) => (
           <div 
             key={`p-meld-${mIdx}`} 
-            className="flex -space-x-6 sm:-space-x-8 md:-space-x-12 cursor-pointer hover:scale-105 transition-transform"
+            className="flex -space-x-8 sm:-space-x-10 md:-space-x-14 cursor-pointer hover:scale-105 transition-transform"
             onClick={() => onSapaw?.(playerId, mIdx)}
           >
             {meld.map((card, cIdx) => (
               <Card 
                 key={`${card.suit}-${card.rank}-${cIdx}`} 
                 {...card} 
-                className="w-12 h-20 sm:w-16 sm:h-24 md:w-20 md:h-32 border-zinc-100 shadow-blue-400/20"
+                className="w-10 h-16 sm:w-14 sm:h-20 md:w-18 md:h-28"
               />
             ))}
           </div>
@@ -59,5 +59,6 @@ export default function MeldZone({
     </div>
   );
 }
+
 
 

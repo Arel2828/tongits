@@ -32,8 +32,6 @@ export default function Hand({
   const [items, setItems] = useState<any[]>([]);
 
   useEffect(() => {
-    // When cards or groups change, we want to update our local items.
-    // We attach the original index to each card to maintain stable, unique keys.
     const cardsWithIndices = cards.map((card, idx) => ({ ...card, originalIndex: idx }));
     let newItems = [...cardsWithIndices];
     
@@ -49,7 +47,6 @@ export default function Hand({
       newItems = [...sortedGroups, ...nonGroupedCards];
     }
     
-    // ONLY update state if the content actually changed to avoid infinite loop
     setItems(prev => {
       if (prev.length !== newItems.length) return newItems;
       const isSame = prev.every((item, idx) => 
@@ -67,7 +64,6 @@ export default function Hand({
     groups.forEach(groupIndices => {
       const groupCards = fixedOrder.filter(c => groupIndices.includes(c.originalIndex));
       const groupCurrentPositions = groupCards.map(c => fixedOrder.indexOf(c)).sort((a, b) => a - b);
-      
       const isContiguous = groupCurrentPositions.every((pos, i) => i === 0 || pos === groupCurrentPositions[i-1] + 1);
       
       if (!isContiguous) {
@@ -88,7 +84,7 @@ export default function Hand({
   const getGroupColor = (originalIndex: number) => {
     const groupIdx = groups.findIndex(g => g.includes(originalIndex));
     if (groupIdx === -1) return null;
-    const colors = ["bg-blue-500/30", "bg-blue-500/30", "bg-purple-500/30", "bg-slate-500/30"];
+    const colors = ["bg-pink-500/40", "bg-pink-400/40", "bg-fuchsia-500/40", "bg-pink-300/40"];
     return colors[groupIdx % colors.length];
   };
 
@@ -101,19 +97,19 @@ export default function Hand({
 
   if (isOpponent) {
     return (
-      <div className="flex justify-center -space-x-6 sm:-space-x-8 md:-space-x-12 p-2 sm:p-4 md:p-8 max-w-full">
+      <div className="flex justify-center -space-x-8 sm:-space-x-10 md:-space-x-14 p-4 max-w-full">
         <AnimatePresence>
           {displayCards.map((card, index) => (
             <motion.div
               key={`opp-${index}`}
               initial={{ y: 50, opacity: 0, scale: 0.8 }}
-              animate={{ y: 0, opacity: 1, scale: 1, rotate: (index - (displayCards.length - 1) / 2) * -2 }}
+              animate={{ y: 0, opacity: 1, scale: 1, rotate: (index - (displayCards.length - 1) / 2) * -3 }}
               exit={{ y: -100, opacity: 0, scale: 0.5 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
               className="relative"
               style={{ zIndex: index }}
             >
-              <Card suit="S" rank="A" isFaceUp={false} className="w-12 h-20 sm:w-16 sm:h-24 md:w-20 md:h-32" />
+              <Card suit="S" rank="A" isFaceUp={false} className="w-10 h-16 sm:w-14 sm:h-20 md:w-18 md:h-28" />
             </motion.div>
           ))}
         </AnimatePresence>
@@ -126,7 +122,7 @@ export default function Hand({
       axis="x" 
       values={items} 
       onReorder={handleReorder}
-      className="flex justify-center -space-x-6 sm:-space-x-8 md:-space-x-12 p-2 sm:p-4 md:p-8 cursor-grab active:cursor-grabbing max-w-full"
+      className="flex justify-center -space-x-6 sm:-space-x-8 md:-space-x-12 p-4 cursor-grab active:cursor-grabbing max-w-full"
     >
       <AnimatePresence>
         {items.map((card, index) => {
@@ -156,32 +152,23 @@ export default function Hand({
             >
               {groupColor && (
                 <div className={cn(
-                  "absolute -inset-2 rounded-2xl -z-10 blur-sm",
+                  "absolute -inset-1 rounded-none border border-black shadow-[4px_4px_0_0_#ff1493] -z-10",
                   groupColor
                 )} />
               )}
               
               {hasNextTie && (
                 <div className={cn(
-                  "absolute top-1/2 -right-6 w-12 h-4 -translate-y-1/2 -z-20",
-                  groupColor?.replace("/30", "/50")
+                  "absolute top-1/2 -right-6 w-12 h-4 -translate-y-1/2 -z-20"
                 )}>
                   <svg className="w-full h-full" viewBox="0 0 40 10">
                     <path 
-                      d="M0,5 Q20,0 40,5" 
+                      d="M0,5 L40,5" 
                       fill="none" 
-                      stroke="currentColor" 
+                      stroke="#ff1493" 
                       strokeWidth="2" 
-                      strokeDasharray="4 2"
-                      className="text-blue-500/50"
-                    />
-                    <path 
-                      d="M0,5 Q20,10 40,5" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="2" 
-                      strokeDasharray="4 2"
-                      className="text-blue-500/50"
+                      strokeDasharray="2 2"
+                      className="opacity-60"
                     />
                   </svg>
                 </div>
@@ -202,5 +189,6 @@ export default function Hand({
     </Reorder.Group>
   );
 }
+
 
 

@@ -1,16 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  --color-slate-950: #020617;
-  --color-slate-900: #0f172a;
-  --color-slate-800: #1e293b;
-  --color-slate-700: #334155;
+  --font-press-start: var(--font-press-start);
+  --font-pixelify: var(--font-pixelify);
 
-  --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
-  --background-image-gradient-conic: conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops));
+  --color-pink-500: #ec4899;
+  --color-pink-600: #db2777;
+  --color-pink-700: #be185d;
+  --color-pink-900: #831843;
+  --color-magenta-950: #1a0010;
 
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-pop-in: pop-in 0.3s ease-out forwards;
+  --animate-pixel-float: pixel-float 2s ease-in-out infinite;
 
   @keyframes pop-in {
     0% {
@@ -22,66 +24,104 @@
       opacity: 1;
     }
   }
+
+  @keyframes pixel-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
 }
 
 :root {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 10, 10, 10;
-  --background-end-rgb: 0, 0, 0;
+  --foreground-rgb: 74, 0, 48;
+  --background-start-rgb: 255, 245, 249;
+  --background-end-rgb: 255, 230, 240;
 
-  --slate-felt: #0f172a;
-  --gold-primary: #3b82f6;
-  --gold-glow: rgba(59,130,246, 0.4);
+  --pink-primary: #ff1493;
+  --pink-glow: rgba(255, 20, 147, 0.2);
+  --pixel-border-color: #ff1493;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
-      transparent,
+      rgb(var(--background-start-rgb)),
       rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+    );
   min-height: 100vh;
   overflow-x: hidden;
+  font-family: var(--font-pixelify), system-ui, sans-serif;
 }
 
 @layer components {
+  /* Pixel Border Utility */
+  .pixel-border {
+    box-shadow: 
+      0 -4px 0 0 black,
+      0 4px 0 0 black,
+      -4px 0 0 0 black,
+      4px 0 0 0 black,
+      0 -8px 0 0 var(--pixel-border-color, #ff1493),
+      0 8px 0 0 var(--pixel-border-color, #ff1493),
+      -8px 0 0 0 var(--pixel-border-color, #ff1493),
+      8px 0 0 0 var(--pixel-border-color, #ff1493);
+    margin: 8px;
+  }
+
+  .pixel-border-sm {
+    box-shadow: 
+      0 -2px 0 0 black,
+      0 2px 0 0 black,
+      -2px 0 0 0 black,
+      2px 0 0 0 black,
+      0 -4px 0 0 var(--pixel-border-color, #ff1493),
+      0 4px 0 0 var(--pixel-border-color, #ff1493),
+      -4px 0 0 0 var(--pixel-border-color, #ff1493),
+      4px 0 0 0 var(--pixel-border-color, #ff1493);
+    margin: 4px;
+  }
+
   .felt-table {
-    @apply relative bg-slate-900 border-[12px] border-blue-900 rounded-[100px] shadow-[inset_0_0_100px_rgba(0,0,0,0.5),0_20px_50px_rgba(0,0,0,0.8)];
-    background-image: radial-gradient(circle, rgba(15,23,42, 1) 0%, rgba(2,6,23, 1) 100%);
+    @apply relative bg-pink-50 border-[2px] border-pink-200 rounded-none shadow-[inset_0_0_100px_rgba(255,20,147,0.1),0_10px_30px_rgba(0,0,0,0.1)];
+    background-image: 
+      radial-gradient(circle, rgba(255,255,255, 0.8) 0%, rgba(255,230,240, 1) 100%),
+      repeating-linear-gradient(45deg, rgba(255,20,147, 0.03) 0, rgba(255,20,147, 0.03) 1px, transparent 0, transparent 50%);
+    background-size: 100% 100%, 8px 8px;
   }
 
-  .btn-blue {
-    @apply px-8 py-3 bg-blue-500 hover:bg-blue-400 text-white font-bold rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.8)] active:scale-95 uppercase tracking-wider;
+  .btn-pink {
+    @apply px-8 py-3 bg-pink-600 hover:bg-pink-500 text-white font-bold transition-all duration-100 shadow-[4px_4px_0_0_#4A0030] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none uppercase tracking-wider font-press-start text-[10px];
   }
 
-  .btn-outline-blue {
-    @apply px-8 py-3 border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white font-bold rounded-full transition-all duration-300 active:scale-95 uppercase tracking-wider;
+  .btn-outline-pink {
+    @apply px-8 py-3 border-4 border-pink-600 text-pink-600 hover:bg-pink-600/5 font-bold transition-all duration-100 active:scale-95 uppercase tracking-wider font-press-start text-[10px];
   }
 
   .card-glow {
-    @apply shadow-[0_0_15px_rgba(59,130,246,0.6)];
+    @apply shadow-[0_0_20px_rgba(255,20,147,0.3)];
   }
 
   .text-glow {
-    text-shadow: 0 0 10px rgba(59,130,246, 0.8), 0 0 20px rgba(59,130,246, 0.4);
+    text-shadow: 0 0 8px rgba(255,20,147, 0.4);
   }
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 12px;
 }
 ::-webkit-scrollbar-track {
-  background: #020617;
+  background: #FFF5F9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #0f172a;
-  border-radius: 10px;
+  background: #FFD1DC;
+  box-shadow: inset 0 0 0 2px #FFF;
+  border: 1px solid #FF1493;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #1e293b;
+  background: #FF1493;
 }
+
+
 
 
