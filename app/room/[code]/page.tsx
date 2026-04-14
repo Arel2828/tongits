@@ -10,7 +10,7 @@ import Card from "@/components/Card";
 import MeldZone from "@/components/MeldZone";
 import Chat from "@/components/Chat";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
-import { Loader2, Trophy, AlertCircle, RotateCcw, Home, Mic, MicOff, Volume2, X, Group, Ungroup } from "lucide-react";
+import { Loader2, Trophy, AlertCircle, RotateCcw, Home, Mic, MicOff, Volume2, X, Group, Ungroup, Copy, Check } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -24,6 +24,7 @@ export default function GameRoom() {
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [groups, setGroups] = useState<number[][]>([]);
   const [isDiscardPending, setIsDiscardPending] = useState(false);
+  const [copied, setCopied] = useState(false);
   const router = useRouter();
   const socket = getSocket();
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -94,6 +95,12 @@ export default function GameRoom() {
     setSelectedCards([]);
   };
 
+  const handleCopyId = () => {
+    navigator.clipboard.writeText(code as string);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   useEffect(() => {
     if (me?.hand.length !== undefined && groups.length > 0) {
       const handIndices = me.hand.map((_: any, i: number) => i);
@@ -148,15 +155,29 @@ export default function GameRoom() {
                     </div>
                 </div>
 
-                <div className="hidden sm:flex flex-col items-start gap-0.5">
-                    <div className="bg-pink-50/50 border-2 border-pink-100 px-3 py-1 flex items-center gap-2">
-                        <span className="text-pink-200 text-[8px] uppercase font-press-start">ID</span>
-                        <span className="font-press-start text-pink-500 text-[8px]">{code}</span>
-                    </div>
-                </div>
+                <button 
+                    onClick={handleCopyId}
+                    className="hidden sm:flex bg-pink-50/50 border-2 border-pink-100 px-3 py-1 items-center gap-2 hover:bg-pink-100 transition-all active:scale-95 group"
+                >
+                    <span className="text-pink-200 text-[8px] uppercase font-press-start group-hover:text-pink-500">
+                        {copied ? "COPIED" : "ID"}
+                    </span>
+                    <span className="font-press-start text-pink-500 text-[8px]">{code}</span>
+                    {copied ? <Check size={12} className="text-green-500" /> : <Copy size={12} className="text-pink-300 group-hover:text-pink-600" />}
+                </button>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                <button 
+                    onClick={handleCopyId}
+                    className="flex sm:hidden bg-pink-50/50 border-2 border-pink-100 px-3 py-2 items-center gap-2 hover:bg-pink-100 transition-all active:scale-95 group h-[38px]"
+                >
+                    <span className="text-pink-200 text-[8px] uppercase font-press-start">
+                        {copied ? "COPIED" : "ID"}
+                    </span>
+                    <span className="font-press-start text-pink-500 text-[8px]">{code}</span>
+                    {copied ? <Check size={12} className="text-green-500" /> : <Copy size={12} className="text-pink-300" />}
+                </button>
                 {!isVoiceJoined ? (
                     <button 
                         onClick={joinVoice}
