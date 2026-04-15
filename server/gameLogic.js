@@ -63,10 +63,29 @@ class TongitsGame {
 
   start() {
     if (this.players.length < 2) return false;
+
+    // Rotate dealer if there's a previous winner
+    if (this.winner) {
+      const winnerId = this.winner.id;
+      this.players.forEach(p => p.isDealer = (p.id === winnerId));
+    }
+
     this.deck = this.createDeck();
     this.drawPile = [...this.deck];
     this.discardPile = [];
     this.status = 'PLAYING';
+    this.winner = null;
+    this.roundReason = '';
+    this.pendingChallenge = null;
+
+    // Reset all players for the new round
+    this.players.forEach(p => {
+      p.hand = [];
+      p.melds = [];
+      p.hasMelded = false;
+      p.isBurned = false;
+      p.points = 0;
+    });
 
     // Deal: Dealer gets 13, other gets 12
     const dealer = this.players.find(p => p.isDealer);
