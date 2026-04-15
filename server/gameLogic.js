@@ -57,6 +57,7 @@ class TongitsGame {
       isConnected: true,
       hasMelded: false,
       isBurned: false,
+      sapawLock: false,
     });
     return true;
   }
@@ -84,6 +85,7 @@ class TongitsGame {
       p.melds = [];
       p.hasMelded = false;
       p.isBurned = false;
+      p.sapawLock = false;
       p.points = 0;
     });
 
@@ -147,6 +149,7 @@ class TongitsGame {
         
         player.hasMelded = true;
         this.hasDrawn = true;
+        targetPlayer.sapawLock = true;
         this.updatePoints();
         return topCard;
       }
@@ -175,7 +178,7 @@ class TongitsGame {
   }
 
   discard(playerId, cardIndex) {
-    if (this.status !== 'PLAYING') return false;
+    if (this.status !== 'PLAYING' || !this.hasDrawn) return false;
     const player = this.players[this.turnIndex];
     if (player.id !== playerId) return false;
 
@@ -189,11 +192,13 @@ class TongitsGame {
 
     this.turnIndex = (this.turnIndex + 1) % this.players.length;
     this.hasDrawn = false; // Reset for next player
+    player.sapawLock = false; // Unlock player after they finish their turn
     this.updatePoints();
     return true;
   }
 
   meld(playerId, cardIndices) {
+    if (!this.hasDrawn) return false;
     const player = this.players.find(p => p.id === playerId);
     if (!player) return false;
 
@@ -243,6 +248,7 @@ class TongitsGame {
   }
 
   sapaw(playerId, targetPlayerId, meldIndex, cardIndices) {
+    if (!this.hasDrawn) return false;
     const player = this.players.find(p => p.id === playerId);
     const targetPlayer = this.players.find(p => p.id === targetPlayerId);
     if (!player || !targetPlayer) return false;
@@ -259,6 +265,7 @@ class TongitsGame {
       targetPlayer.melds[meldIndex] = newMeld;
       
       player.hasMelded = true; // Sapaw counts as having melded
+      targetPlayer.sapawLock = true;
       this.updatePoints();
       return true;
     }
@@ -267,7 +274,8 @@ class TongitsGame {
 
   callDraw(playerId) {
     const player = this.players.find(p => p.id === playerId);
-    if (!player || !player.hasMelded) return false;
+    // Requirements: Must be start of turn (!hasDrawn), must have melded, and not sapawed
+    if (!player || !player.hasMelded || this.hasDrawn || player.sapawLock) return false;
 
     // Set state to pending challenge
     this.status = 'CHALLENGE_PENDING';
@@ -341,6 +349,8 @@ class TongitsGame {
         isConnected: p.isConnected,
         hasMelded: p.hasMelded,
         isBurned: p.isBurned,
+        sapawLock: p.sapawLock,
+        canCallDraw: p.id === this.players[this.turnIndex]?.id && !this.hasDrawn && p.hasMelded && !p.sapawLock,
       })),
       drawPileCount: this.drawPile.length,
       discardPile: this.discardPile,
@@ -350,6 +360,7 @@ class TongitsGame {
       turnId: this.players[this.turnIndex]?.id,
       rematchCount: this.rematchReady.size,
       pendingChallenge: this.pendingChallenge,
+      hasDrawn: this.hasDrawn,
     };
   }
 }

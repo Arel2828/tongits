@@ -10,7 +10,7 @@ import Card from "@/components/Card";
 import MeldZone from "@/components/MeldZone";
 import Chat from "@/components/Chat";
 import { useVoiceChat } from "@/hooks/useVoiceChat";
-import { Loader2, Trophy, AlertCircle, RotateCcw, Home, Mic, MicOff, Volume2, X, Group, Ungroup, Copy, Check, Music, Music2 } from "lucide-react";
+import { Loader2, Trophy, AlertCircle, RotateCcw, Home, Mic, MicOff, Volume2, X, Group, Ungroup, Copy, Check, Music, Music2, ArrowDown } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -285,6 +285,21 @@ export default function GameRoom() {
                     {gameState.drawPileCount}
                 </div>
             )}
+            
+            {/* Draw Indicator Arrow */}
+            <AnimatePresence>
+                {isMyTurn && !gameState.hasDrawn && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="absolute -top-16 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 z-30"
+                    >
+                        <span className="text-[8px] font-press-start text-pink-500 animate-pulse whitespace-nowrap bg-white/80 px-2 py-1 pixel-border-sm">PICK A CARD</span>
+                        <ArrowDown className="text-pink-500 animate-bounce" size={24} />
+                    </motion.div>
+                )}
+            </AnimatePresence>
           </div>
 
           {/* Discard Pile */}
@@ -335,7 +350,7 @@ export default function GameRoom() {
         {/* UI FIX: Enhanced Mobile Button Grid */}
         <div className="w-full max-w-xl px-4 grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-3 md:gap-4">
           <button 
-            disabled={!isMyTurn || selectedCards.length < 3}
+            disabled={!isMyTurn || !gameState.hasDrawn || selectedCards.length < 3}
             onClick={() => handleAction("meld", { cardIndices: selectedCards })}
             className="flex-1 min-h-[50px] bg-white border-4 border-black text-pink-600 font-press-start text-[10px] uppercase hover:bg-pink-600 hover:text-white disabled:opacity-30 disabled:grayscale transition-all active:scale-95 shadow-[4px_4px_0_0_rgba(255,20,147,0.2)]"
           >
@@ -343,7 +358,7 @@ export default function GameRoom() {
           </button>
           
           <button 
-            disabled={!isMyTurn || selectedCards.length !== 1}
+            disabled={!isMyTurn || !gameState.hasDrawn || selectedCards.length !== 1}
             onClick={() => handleAction("discard", { cardIndex: selectedCards[0] })}
             className="flex-1 min-h-[50px] bg-white border-4 border-black text-red-600 font-press-start text-[10px] uppercase hover:bg-red-600 hover:text-white disabled:opacity-30 disabled:grayscale transition-all active:scale-95 shadow-[4px_4px_0_0_rgba(255,0,0,0.1)]"
           >
@@ -351,11 +366,19 @@ export default function GameRoom() {
           </button>
 
           <button 
-            disabled={!isMyTurn || !me?.hasMelded}
+            disabled={!isMyTurn || !me?.canCallDraw}
             onClick={() => handleAction("call-draw")}
-            className="col-span-2 sm:flex-1 min-h-[50px] bg-pink-600 text-white border-4 border-black font-press-start text-[10px] uppercase shadow-[4px_4px_0_0_#4A0030] disabled:opacity-30 disabled:grayscale transition-all hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_#4A0030] active:translate-y-[2px] active:shadow-none"
+            className={cn(
+                "col-span-2 sm:flex-1 min-h-[50px] bg-pink-600 text-white border-4 border-black font-press-start text-[10px] uppercase shadow-[4px_4px_0_0_#4A0030] disabled:opacity-30 disabled:grayscale transition-all hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_#4A0030] active:translate-y-[2px] active:shadow-none",
+                me?.sapawLock && "relative overflow-hidden"
+            )}
           >
-            Call Draw
+            {me?.sapawLock ? "Locked" : "Call Draw"}
+            {me?.sapawLock && (
+                <div className="absolute inset-0 bg-red-900/20 flex items-center justify-center">
+                    <div className="text-[6px] rotate-12 border border-red-500 px-1 text-red-500 font-bold">SAPAWED</div>
+                </div>
+            )}
           </button>
 
           <div className="hidden sm:block w-[4px] h-10 bg-pink-100 mx-2 self-center" />
