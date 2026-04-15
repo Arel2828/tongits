@@ -24,7 +24,7 @@ export default function MeldZone({
         {opponentMelds.map((meld, mIdx) => (
           <div 
             key={`opp-meld-${mIdx}`} 
-            className="flex -space-x-8 sm:-space-x-10 md:-space-x-14 cursor-pointer hover:scale-105 transition-transform"
+            className="flex -space-x-6 sm:-space-x-8 md:-space-x-10 cursor-pointer hover:scale-105 transition-transform"
             onClick={() => onSapaw?.(opponentId, mIdx)}
           >
             {meld.map((card, cIdx) => (
@@ -43,7 +43,7 @@ export default function MeldZone({
         {playerMelds.map((meld, mIdx) => (
           <div 
             key={`p-meld-${mIdx}`} 
-            className="flex -space-x-8 sm:-space-x-10 md:-space-x-14 cursor-pointer hover:scale-105 transition-transform"
+            className="flex -space-x-6 sm:-space-x-8 md:-space-x-10 cursor-pointer hover:scale-105 transition-transform"
             onClick={() => onSapaw?.(playerId, mIdx)}
           >
             {meld.map((card, cIdx) => (
