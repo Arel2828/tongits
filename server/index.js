@@ -109,6 +109,13 @@ io.on('connection', (socket) => {
     game.requestRematch(socket.id);
     broadcastState(code, game);
   });
+  
+  socket.on('game:auto-sort', ({ code }) => {
+    const game = roomManager.getRoom(code);
+    if (!game) return;
+    game.autoSort(socket.id);
+    broadcastState(code, game);
+  });
 
   socket.on('chat:send', ({ code, message, username }) => {
     io.to(code).emit('chat:message', { 

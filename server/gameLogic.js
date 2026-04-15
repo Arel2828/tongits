@@ -104,7 +104,9 @@ class TongitsGame {
 
   updatePoints() {
     this.players.forEach(p => {
-      p.points = p.hand.reduce((sum, card) => sum + card.value, 0);
+      // Points only count for unmelded cards in hand
+      const { score } = this.solveMelds(p.hand);
+      p.points = score;
     });
   }
 
@@ -334,6 +336,100 @@ class TongitsGame {
       return true; // Restarted
     }
     return false; // Still waiting
+  }
+
+  autoSort(playerId) {
+    const player = this.players.find(p => p.id === playerId);
+    if (!player) return false;
+
+    const { melds, unmelded } = this.solveMelds(player.hand);
+    
+    // Flatten melds and append unmelded cards
+    const sortedHand = [];
+    melds.forEach(m => sortedHand.push(...m));
+    sortedHand.push(...unmelded);
+
+    player.hand = sortedHand;
+    return true;
+  }
+
+  solveMelds(hand) {
+    const cards = [...hand];
+    const possibleMelds = [];
+
+    // Helper for Rank groups (Sets)
+    const rankGroups = {};
+    cards.forEach(c => {
+      if (!rankGroups[c.rank]) rankGroups[c.rank] = [];
+      rankGroups[c.rank].push(c);
+    });
+
+    for (const rank in rankGroups) {
+      const group = rankGroups[rank];
+      if (group.length >= 3) {
+        if (group.length === 3) possibleMelds.push(group);
+        if (group.length === 4) {
+          possibleMelds.push(group);
+          group.forEach((_, i) => {
+            const subset = [...group];
+            subset.splice(i, 1);
+            possibleMelds.push(subset);
+          });
+        }
+      }
+    }
+
+    // Helper for Suit groups (Runs)
+    const suitGroups = { 'S': [], 'H': [], 'D': [], 'C': [] };
+    cards.forEach(c => suitGroups[c.suit].push(c));
+
+    for (const suit in suitGroups) {
+      const group = suitGroups[suit].sort((a, b) => this.rankToOrder(a.rank) - this.rankToOrder(b.rank));
+      for (let i = 0; i < group.length; i++) {
+        for (let len = 3; i + len <= group.length; len++) {
+          const sequence = group.slice(i, i + len);
+          let valid = true;
+          for (let k = 0; k < sequence.length - 1; k++) {
+            if (this.rankToOrder(sequence[k+1].rank) !== this.rankToOrder(sequence[k].rank) + 1) {
+              valid = false;
+              break;
+            }
+          }
+          if (valid) possibleMelds.push(sequence);
+          else break;
+        }
+      }
+    }
+
+    // Recursive search for best combination
+    let bestScore = cards.reduce((sum, c) => sum + c.value, 0);
+    let bestMeldSet = [];
+
+    const findBest = (remainingCards, meldIndex, currentMeldSet) => {
+      const currentScore = remainingCards.reduce((sum, c) => sum + c.value, 0);
+      if (currentScore < bestScore) {
+        bestScore = currentScore;
+        bestMeldSet = [...currentMeldSet];
+      }
+
+      if (meldIndex >= possibleMelds.length || bestScore === 0) return;
+
+      for (let i = meldIndex; i < possibleMelds.length; i++) {
+        const meld = possibleMelds[i];
+        if (meld.every(mc => remainingCards.some(rc => rc.suit === mc.suit && rc.rank === mc.rank))) {
+          const nextRemaining = remainingCards.filter(rc => !meld.some(mc => mc.suit === rc.suit && mc.rank === rc.rank));
+          findBest(nextRemaining, i + 1, [...currentMeldSet, meld]);
+        }
+      }
+    };
+
+    findBest(cards, 0, []);
+
+    const meldedCardIds = new Set();
+    bestMeldSet.forEach(meld => meld.forEach(c => meldedCardIds.add(`${c.suit}-${c.rank}`)));
+    const unmelded = cards.filter(c => !meldedCardIds.has(`${c.suit}-${c.rank}`));
+
+    return { melds: bestMeldSet, unmelded, score: bestScore };
   }
 
   getState(playerId) {

@@ -384,22 +384,29 @@ export default function GameRoom() {
           <div className="hidden sm:block w-[4px] h-10 bg-pink-100 mx-2 self-center" />
 
           {/* Grouping Controls */}
-          <div className="col-span-2 grid grid-cols-2 gap-3 sm:flex">
+          <div className="col-span-2 grid grid-cols-3 gap-3 sm:flex">
             <button 
                 disabled={selectedCards.length < 2}
                 onClick={handleGroup}
-                className="flex items-center justify-center gap-2 min-h-[50px] sm:px-6 bg-white border-4 border-black text-pink-500 font-press-start text-[8px] uppercase hover:bg-pink-50 disabled:opacity-30 transition-all active:scale-95 shadow-[4px_4px_0_0_rgba(255,20,147,0.1)]"
+                className="flex items-center justify-center gap-1 min-h-[50px] sm:px-4 bg-white border-4 border-black text-pink-500 font-press-start text-[8px] uppercase hover:bg-pink-50 disabled:opacity-30 transition-all active:scale-95 shadow-[4px_4px_0_0_rgba(255,20,147,0.1)]"
             >
-                <Group size={14} />
+                <Group size={12} className="hidden xs:block" />
                 Group
             </button>
             <button 
                 disabled={selectedCards.length === 0}
                 onClick={handleUngroup}
-                className="flex items-center justify-center gap-2 min-h-[50px] sm:px-6 bg-white border-4 border-black text-pink-500 font-press-start text-[8px] uppercase hover:bg-pink-50 disabled:opacity-30 transition-all active:scale-95 shadow-[4px_4px_0_0_rgba(255,20,147,0.1)]"
+                className="flex items-center justify-center gap-1 min-h-[50px] sm:px-4 bg-white border-4 border-black text-pink-500 font-press-start text-[8px] uppercase hover:bg-pink-50 disabled:opacity-30 transition-all active:scale-95 shadow-[4px_4px_0_0_rgba(255,20,147,0.1)]"
             >
-                <Ungroup size={14} />
+                <Ungroup size={12} className="hidden xs:block" />
                 Clear
+            </button>
+            <button 
+                onClick={() => handleAction("auto-sort")}
+                className="flex items-center justify-center gap-1 min-h-[50px] sm:px-4 bg-pink-50 border-4 border-black text-pink-600 font-press-start text-[8px] uppercase hover:bg-pink-100 transition-all active:scale-95 shadow-[4px_4px_0_0_rgba(255,20,147,0.1)]"
+            >
+                <RotateCcw size={12} className="hidden xs:block" />
+                Sort
             </button>
           </div>
         </div>
