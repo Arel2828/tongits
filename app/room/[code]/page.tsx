@@ -72,11 +72,17 @@ export default function GameRoom() {
         localStorage.setItem("tongits_user", username);
     }
 
+    socket.on("room:cancelled", () => {
+        localStorage.removeItem("tongits_room");
+        router.push("/");
+    });
+
     return () => {
       socket.off("game:update");
       socket.off("error");
+      socket.off("room:cancelled");
     };
-  }, [socket, setGameState, code, username]);
+  }, [socket, setGameState, code, username, router]);
 
   const toggleCardSelection = (index: number) => {
     const card = me?.hand[index];
@@ -134,6 +140,12 @@ export default function GameRoom() {
     navigator.clipboard.writeText(code as string);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCancelRoom = () => {
+    socket.emit("room:cancel", { code });
+    localStorage.removeItem("tongits_room");
+    router.push("/");
   };
 
   useEffect(() => {
@@ -583,6 +595,13 @@ export default function GameRoom() {
                         className="bg-red-500 h-full"
                     />
                 </div>
+                
+                <button 
+                  onClick={handleCancelRoom}
+                  className="mt-8 w-full py-4 bg-pink-600 text-white font-press-start text-[10px] uppercase shadow-[4px_4px_0_0_#4A0030] hover:scale-105 active:scale-95 transition-all pixel-border-sm"
+                >
+                  Cancel & Restart
+                </button>
             </div>
           </motion.div>
         )}

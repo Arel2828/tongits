@@ -43,8 +43,9 @@ class RoomManager {
 
   removeRoom(code) {
     const game = this.rooms.get(code);
-    if (game && game.expiryTimeout) {
-      clearTimeout(game.expiryTimeout);
+    if (game) {
+      if (game.expiryTimeout) clearTimeout(game.expiryTimeout);
+      if (game.disconnectTimeout) clearTimeout(game.disconnectTimeout);
     }
     this.rooms.delete(code);
   }

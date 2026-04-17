@@ -155,6 +155,15 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('room:cancel', ({ code }) => {
+    const game = roomManager.getRoom(code);
+    if (game) {
+      console.log(`Room ${code} cancelled by user ${socket.id}`);
+      io.to(code).emit('room:cancelled');
+      roomManager.removeRoom(code);
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
     
