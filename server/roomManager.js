@@ -14,19 +14,38 @@ class RoomManager {
     const game = new TongitsGame();
     this.rooms.set(code, game);
     
-    // Set expiry cleanup
-    setTimeout(() => {
-      this.rooms.delete(code);
-    }, 30 * 60 * 1000); // 30 minutes expiry
+    this.resetExpiry(code);
 
     return code;
   }
 
+  resetExpiry(code) {
+    const game = this.rooms.get(code);
+    if (!game) return;
+
+    if (game.expiryTimeout) {
+      clearTimeout(game.expiryTimeout);
+    }
+
+    game.expiryTimeout = setTimeout(() => {
+      console.log(`Room ${code} expired due to inactivity`);
+      this.rooms.delete(code);
+    }, 60 * 60 * 1000); // 1 hour inactivity TTL
+  }
+
   getRoom(code) {
-    return this.rooms.get(code);
+    const game = this.rooms.get(code);
+    if (game) {
+      this.resetExpiry(code);
+    }
+    return game;
   }
 
   removeRoom(code) {
+    const game = this.rooms.get(code);
+    if (game && game.expiryTimeout) {
+      clearTimeout(game.expiryTimeout);
+    }
     this.rooms.delete(code);
   }
 }

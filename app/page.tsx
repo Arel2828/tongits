@@ -25,16 +25,31 @@ export default function Lobby() {
     socket.on("error", (msg) => {
       alert(msg);
       setIsWaiting(false);
+      // If auto-rejoin fails, clear storage
+      localStorage.removeItem("tongits_room");
+      localStorage.removeItem("tongits_user");
     });
+
+    // Auto-rejoin check
+    const savedRoom = localStorage.getItem("tongits_room");
+    const savedUser = localStorage.getItem("tongits_user");
+    if (savedRoom && savedUser && !isWaiting) {
+      setUsernameInput(savedUser);
+      setRoomCodeInput(savedRoom);
+      setUsername(savedUser);
+      setIsWaiting(true);
+      socket.emit("room:join", { code: savedRoom, username: savedUser });
+    }
 
     return () => {
       socket.off("room:joined");
       socket.off("error");
     };
-  }, [socket, setCode, setGameState, router]);
+  }, [socket, setCode, setGameState, setUsername, router]);
 
   const handleCreateRoom = () => {
     if (!usernameInput) return alert("Please enter a username");
+    setUsername(usernameInput);
     setIsWaiting(true);
     socket.emit("room:create", { username: usernameInput });
   };
@@ -42,6 +57,7 @@ export default function Lobby() {
   const handleJoinRoom = () => {
     if (!usernameInput) return alert("Please enter a username");
     if (!roomCodeInput) return alert("Please enter a room code");
+    setUsername(usernameInput);
     setIsWaiting(true);
     socket.emit("room:join", { code: roomCodeInput, username: usernameInput });
   };

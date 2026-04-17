@@ -62,6 +62,16 @@ class TongitsGame {
     return true;
   }
 
+  reconnectPlayer(oldId, newId, username) {
+    const player = this.players.find(p => p.username === username);
+    if (player && !player.isConnected) {
+      player.id = newId;
+      player.isConnected = true;
+      return true;
+    }
+    return false;
+  }
+
   start() {
     if (this.players.length < 2) return false;
 
@@ -97,7 +107,8 @@ class TongitsGame {
     opponent.hand = this.drawPile.splice(0, 12);
     
     this.turnIndex = this.players.findIndex(p => p.isDealer);
-    this.hasDrawn = false;
+    // First move rule: Dealer starts with 13 and doesn't draw
+    this.hasDrawn = true; 
     this.updatePoints();
     return true;
   }

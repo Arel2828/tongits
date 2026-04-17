@@ -32,22 +32,43 @@ io.on('connection', (socket) => {
   });
 
   socket.on('room:join', ({ code, username }) => {
-    const game = roomManager.getRoom(code);
-    if (!game) {
-      return socket.emit('error', 'Room not found');
-    }
-    if (game.addPlayer(socket.id, username)) {
-      socket.join(code);
-      socket.emit('room:joined', { code, game: game.getState(socket.id) });
-      broadcastState(code, game);
-      
-      // Auto-start if 2 players
-      if (game.players.length === 2) {
-        game.start();
-        broadcastState(code, game);
+    try {
+      const game = roomManager.getRoom(code);
+      if (!game) {
+        return socket.emit('error', 'Room not found');
       }
-    } else {
-      socket.emit('error', 'Room full');
+
+      // Try reconnection first
+      if (game.reconnectPlayer(null, socket.id, username)) {
+        socket.join(code);
+        if (game.disconnectTimeout) {
+            const allConnected = game.players.every(p => p.isConnected);
+            if (allConnected) {
+                clearTimeout(game.disconnectTimeout);
+                game.disconnectTimeout = null;
+            }
+        }
+        socket.emit('room:joined', { code, game: game.getState(socket.id) });
+        broadcastState(code, game);
+        return;
+      }
+
+      if (game.addPlayer(socket.id, username)) {
+        socket.join(code);
+        socket.emit('room:joined', { code, game: game.getState(socket.id) });
+        broadcastState(code, game);
+        
+        // Auto-start if 2 players
+        if (game.players.length === 2) {
+          game.start();
+          broadcastState(code, game);
+        }
+      } else {
+        socket.emit('error', 'Room full');
+      }
+    } catch (err) {
+      console.error("Error in room:join:", err);
+      socket.emit('error', 'Internal server error');
     }
   });
 
@@ -144,14 +165,14 @@ io.on('connection', (socket) => {
         player.isConnected = false;
         broadcastState(code, game);
         
-        // Start 60s countdown
+        // Start 5-minute countdown for reconnection
         if (game.disconnectTimeout) clearTimeout(game.disconnectTimeout);
         game.disconnectTimeout = setTimeout(() => {
           if (game.players.some(p => !p.isConnected)) {
-            roomManager.rooms.delete(code);
+            roomManager.removeRoom(code);
             io.to(code).emit('error', 'Game ended due to player disconnection');
           }
-        }, 60000);
+        }, 300000); // 5 minutes
         break;
       }
     }

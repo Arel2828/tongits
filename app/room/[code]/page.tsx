@@ -28,7 +28,7 @@ export default function GameRoom() {
   const { code } = useParams();
   const { gameState, setGameState, username } = useGameStore();
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
-  const [groups, setGroups] = useState<number[][]>([]);
+  const [groups, setGroups] = useState<string[][]>([]); // IDs like "S-A"
   const [isDiscardPending, setIsDiscardPending] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isMusicMuted, setIsMusicMuted] = useState(false);
@@ -66,44 +66,62 @@ export default function GameRoom() {
       alert(msg);
     });
 
+    // Session persistence
+    if (code && username) {
+        localStorage.setItem("tongits_room", code as string);
+        localStorage.setItem("tongits_user", username);
+    }
+
     return () => {
       socket.off("game:update");
       socket.off("error");
     };
-  }, [socket, setGameState]);
+  }, [socket, setGameState, code, username]);
 
   const toggleCardSelection = (index: number) => {
-    const group = groups.find(g => g.includes(index));
+    const card = me?.hand[index];
+    if (!card) return;
+    const cardId = `${card.suit}-${card.rank}`;
+    const group = groups.find(g => g.includes(cardId));
     
     if (group) {
-        const groupIsSelected = group.every(idx => selectedCards.includes(idx));
+        // Find indices of all cards in this group
+        const groupIndices = me.hand.map((c: any, i: number) => {
+            if (group.includes(`${c.suit}-${c.rank}`)) return i;
+            return -1;
+        }).filter((i: number) => i !== -1);
+
+        const groupIsSelected = groupIndices.every((idx: number) => selectedCards.includes(idx));
         if (groupIsSelected) {
-            setSelectedCards(prev => prev.filter(idx => !group.includes(idx)));
+            setSelectedCards(prev => prev.filter((idx: number) => !groupIndices.includes(idx)));
         } else {
-            setSelectedCards(prev => Array.from(new Set([...prev, ...group])));
+            setSelectedCards(prev => Array.from(new Set([...prev, ...groupIndices])));
         }
     } else {
         setSelectedCards((prev) =>
-          prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+          prev.includes(index) ? prev.filter((i: number) => i !== index) : [...prev, index]
         );
     }
   };
 
   const handleGroup = () => {
     if (selectedCards.length < 2) return;
+    const selectedCardIds = selectedCards.map((idx: number) => `${me.hand[idx].suit}-${me.hand[idx].rank}`);
+    
     setGroups(prev => {
       const cleanedGroups = prev
-        .map(group => group.filter(idx => !selectedCards.includes(idx)))
-        .filter(group => group.length > 1);
+        .map((group: string[]) => group.filter((id: string) => !selectedCardIds.includes(id)))
+        .filter((group: string[]) => group.length > 1);
       
-      return [...cleanedGroups, [...selectedCards]];
+      return [...cleanedGroups, selectedCardIds];
     });
     setSelectedCards([]);
   };
 
   const handleUngroup = () => {
     if (selectedCards.length === 0) return;
-    setGroups(prev => prev.filter(group => !group.some(idx => selectedCards.includes(idx))));
+    const selectedCardIds = selectedCards.map((idx: number) => `${me.hand[idx].suit}-${me.hand[idx].rank}`);
+    setGroups(prev => prev.filter((group: string[]) => !group.some((id: string) => selectedCardIds.includes(id))));
     setSelectedCards([]);
   };
 
@@ -120,13 +138,16 @@ export default function GameRoom() {
 
   useEffect(() => {
     if (me?.hand.length !== undefined && groups.length > 0) {
-      const handIndices = me.hand.map((_: any, i: number) => i);
-      const isValid = groups.every(g => g.every(idx => handIndices.includes(idx)));
-      if (!isValid) {
-        setGroups([]);
+      const handIds = me.hand.map((c: any) => `${c.suit}-${c.rank}`);
+      const cleanedGroups = groups
+        .map((group: string[]) => group.filter((id: string) => handIds.includes(id)))
+        .filter((group: string[]) => group.length > 1);
+      
+      if (cleanedGroups.length !== groups.length || cleanedGroups.some((g: string[], i: number) => g.length !== groups[i].length)) {
+        setGroups(cleanedGroups);
       }
     }
-  }, [me?.hand.length, groups]);
+  }, [me?.hand, groups]);
 
   if (!gameState) {
     return (
@@ -553,12 +574,12 @@ export default function GameRoom() {
             <div className="bg-white border-2 border-red-500 p-8 max-w-sm pixel-border-sm" style={{ "--pixel-border-color": "#dc2626" } as any}>
                 <AlertCircle className="text-red-500 mx-auto mb-6 animate-pulse" size={48} />
                 <h3 className="text-lg font-press-start text-red-900 mb-4">OPPONENT OFFLINE</h3>
-                <p className="text-red-400 font-pixelify text-sm mb-8">Synchronizing... Automatic timeout in 60s</p>
+                <p className="text-red-400 font-pixelify text-sm mb-8">Synchronizing... Automatic timeout in 300s</p>
                 <div className="w-full bg-red-50 h-2 border border-black overflow-hidden mb-2">
                     <motion.div 
                         initial={{ width: "100%" }}
                         animate={{ width: "0%" }}
-                        transition={{ duration: 60, ease: "linear" }}
+                        transition={{ duration: 300, ease: "linear" }}
                         className="bg-red-500 h-full"
                     />
                 </div>

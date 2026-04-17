@@ -17,7 +17,7 @@ interface HandProps {
   onCardClick?: (index: number) => void;
   handCount?: number;
   onReorder?: (newOrder: any[]) => void;
-  groups?: number[][];
+  groups?: string[][]; // Array of card IDs (suit-rank)
 }
 
 export default function Hand({
@@ -31,20 +31,27 @@ export default function Hand({
 }: HandProps) {
   const [items, setItems] = useState<any[]>([]);
 
+  const getCardId = (card: any) => `${card.suit}-${card.rank}`;
+
   useEffect(() => {
     const cardsWithIndices = cards.map((card, idx) => ({ ...card, originalIndex: idx }));
     let newItems = [...cardsWithIndices];
     
     if (groups.length > 0) {
-      const groupedCards = groups.flat().map(idx => cardsWithIndices[idx]).filter(Boolean);
-      const nonGroupedCards = cardsWithIndices.filter(c => !groupedCards.includes(c));
+      const flattenedGroups = groups.flat();
+      const groupedCards = cardsWithIndices.filter(c => flattenedGroups.includes(getCardId(c)));
+      const nonGroupedCards = cardsWithIndices.filter(c => !flattenedGroups.includes(getCardId(c)));
       
       const sortedGroups = [];
-      for (const groupIndices of groups) {
-        sortedGroups.push(...groupIndices.map(idx => cardsWithIndices[idx]).filter(Boolean));
+      for (const groupIds of groups) {
+        const groupCards = cardsWithIndices.filter(c => groupIds.includes(getCardId(c)));
+        sortedGroups.push(...groupCards);
       }
       
-      newItems = [...sortedGroups, ...nonGroupedCards];
+      const uniqueSortedGroups = Array.from(new Set(sortedGroups));
+      const remainingNonGrouped = cardsWithIndices.filter(c => !uniqueSortedGroups.includes(c));
+      
+      newItems = [...uniqueSortedGroups, ...remainingNonGrouped];
     }
     
     setItems(prev => {
@@ -61,8 +68,8 @@ export default function Hand({
   const handleReorder = (newOrder: any[]) => {
     let fixedOrder = [...newOrder];
     
-    groups.forEach(groupIndices => {
-      const groupCards = fixedOrder.filter(c => groupIndices.includes(c.originalIndex));
+    groups.forEach(groupIds => {
+      const groupCards = fixedOrder.filter(c => groupIds.includes(getCardId(c)));
       const groupCurrentPositions = groupCards.map(c => fixedOrder.indexOf(c)).sort((a, b) => a - b);
       const isContiguous = groupCurrentPositions.every((pos, i) => i === 0 || pos === groupCurrentPositions[i-1] + 1);
       
@@ -81,8 +88,9 @@ export default function Hand({
 
   const displayCards = isOpponent ? Array.from({ length: handCount }) : items;
 
-  const getGroupColor = (originalIndex: number) => {
-    const groupIdx = groups.findIndex(g => g.includes(originalIndex));
+  const getGroupColor = (card: any) => {
+    const cardId = getCardId(card);
+    const groupIdx = groups.findIndex(g => g.includes(cardId));
     if (groupIdx === -1) return null;
     const colors = ["bg-pink-500/40", "bg-pink-400/40", "bg-fuchsia-500/40", "bg-pink-300/40"];
     return colors[groupIdx % colors.length];
@@ -90,9 +98,9 @@ export default function Hand({
 
   const isInSameGroupAsNext = (idx: number) => {
     if (idx >= items.length - 1) return false;
-    const currentOrigIdx = items[idx].originalIndex;
-    const nextOrigIdx = items[idx+1].originalIndex;
-    return groups.some(g => g.includes(currentOrigIdx) && g.includes(nextOrigIdx));
+    const currentId = getCardId(items[idx]);
+    const nextId = getCardId(items[idx+1]);
+    return groups.some(g => g.includes(currentId) && g.includes(nextId));
   };
 
   if (isOpponent) {
@@ -127,7 +135,7 @@ export default function Hand({
       <AnimatePresence>
         {items.map((card, index) => {
           const originalIndex = card.originalIndex;
-          const groupColor = getGroupColor(originalIndex);
+          const groupColor = getGroupColor(card);
           const hasNextTie = isInSameGroupAsNext(index);
           
           const selectionIdx = selectedIndices.indexOf(originalIndex);
