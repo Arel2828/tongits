@@ -35,6 +35,7 @@ export default function GameRoom() {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const router = useRouter();
   const socket = getSocket();
+  const [isSocketConnected, setIsSocketConnected] = useState(socket.connected);
   const audioRef = useRef<HTMLAudioElement>(null);
   const bgmRef = useRef<HTMLAudioElement>(null);
   const { isVoiceJoined, isMuted, remoteStream, joinVoice, leaveVoice, toggleMute } = useVoiceChat(code as string);
@@ -56,6 +57,32 @@ export default function GameRoom() {
         });
     }
   }, [currentTrackIndex, isMusicMuted]);
+
+  useEffect(() => {
+    const onConnect = () => {
+        setIsSocketConnected(true);
+        if (code && username) {
+            socket.emit("room:join", { code, username });
+        }
+    };
+
+    const onDisconnect = () => {
+        setIsSocketConnected(false);
+    };
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+
+    // Initial check in case it connected before the effect
+    if (socket.connected) {
+        onConnect();
+    }
+
+    return () => {
+        socket.off("connect", onConnect);
+        socket.off("disconnect", onDisconnect);
+    };
+  }, [socket, code, username]);
 
   useEffect(() => {
     socket.on("game:update", (state) => {
@@ -577,7 +604,7 @@ export default function GameRoom() {
 
       {/* Disconnected Overlay */}
       <AnimatePresence>
-        {gameState.players.some((p: any) => !p.isConnected) && gameState.status === "PLAYING" && (
+        {gameState.players.some((p: any) => !p.isConnected) && gameState.status === "PLAYING" && isSocketConnected && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -602,6 +629,39 @@ export default function GameRoom() {
                 >
                   Cancel & Restart
                 </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Local Disconnection Overlay */}
+      <AnimatePresence>
+        {!isSocketConnected && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-lg flex items-center justify-center p-8 text-center"
+          >
+            <div className="bg-white border-4 border-black p-8 max-w-sm pixel-border shadow-[8px_8px_0_0_#ff1493]">
+                <div className="relative mb-8">
+                    <Loader2 className="animate-spin text-pink-500 mx-auto" size={48} />
+                    <AlertCircle className="absolute inset-0 m-auto text-pink-200 opacity-20" size={20} />
+                </div>
+                <h3 className="text-lg font-press-start text-pink-600 mb-4">RECONNECTING...</h3>
+                <p className="text-pink-400 font-pixelify text-xs leading-relaxed">
+                    Connection lost. Attempting to restore your seat at the table.
+                </p>
+                <div className="mt-6 flex justify-center gap-2">
+                    {[0, 1, 2].map((i) => (
+                        <motion.div
+                            key={i}
+                            animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
+                            transition={{ repeat: Infinity, duration: 1, delay: i * 0.2 }}
+                            className="w-2 h-2 bg-pink-500 rounded-full"
+                        />
+                    ))}
+                </div>
             </div>
           </motion.div>
         )}

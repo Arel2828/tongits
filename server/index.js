@@ -10,6 +10,8 @@ const io = new Server(server, {
     origin: process.env.CORS_ORIGIN || "*", // Fallback to all for now
     methods: ['GET', 'POST'],
   },
+  pingTimeout: 5000,
+  pingInterval: 10000,
 });
 
 const PORT = process.env.PORT || 3001;

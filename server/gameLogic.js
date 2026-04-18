@@ -64,7 +64,7 @@ class TongitsGame {
 
   reconnectPlayer(oldId, newId, username) {
     const player = this.players.find(p => p.username === username);
-    if (player && !player.isConnected) {
+    if (player) {
       player.id = newId;
       player.isConnected = true;
       return true;
