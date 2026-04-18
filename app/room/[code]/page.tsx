@@ -33,6 +33,7 @@ export default function GameRoom() {
   const [copied, setCopied] = useState(false);
   const [isMusicMuted, setIsMusicMuted] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const router = useRouter();
   const socket = getSocket();
   const [isSocketConnected, setIsSocketConnected] = useState(socket.connected);
@@ -170,8 +171,9 @@ export default function GameRoom() {
   };
 
   const handleCancelRoom = () => {
-    socket.emit("room:cancel", { code });
     localStorage.removeItem("tongits_room");
+    localStorage.removeItem("tongits_user");
+    socket.emit("room:cancel", { code });
     router.push("/");
   };
 
@@ -214,7 +216,7 @@ export default function GameRoom() {
         <div className="flex flex-col gap-2">
             <div className="flex items-center gap-3">
                 <button 
-                  onClick={() => router.push("/")}
+                  onClick={() => setShowLeaveConfirm(true)}
                   className="p-2 bg-pink-50 hover:bg-red-50 text-pink-400 hover:text-red-500 border border-pink-100 transition-all active:scale-95"
                   title="Leave Table"
                 >
@@ -663,6 +665,48 @@ export default function GameRoom() {
                     ))}
                 </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Leave Confirmation Modal */}
+      <AnimatePresence>
+        {showLeaveConfirm && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-md flex items-center justify-center p-6"
+          >
+            <motion.div 
+               initial={{ scale: 0.9, y: 20 }}
+               animate={{ scale: 1, y: 0 }}
+               className="bg-white border-4 border-black p-8 max-w-sm w-full text-center pixel-border shadow-[8px_8px_0_0_#ff1493]"
+            >
+               <div className="w-16 h-16 bg-red-50 border-2 border-red-200 flex items-center justify-center mx-auto mb-6 pixel-border-sm">
+                 <AlertCircle className="text-red-500" size={32} />
+               </div>
+
+               <h3 className="text-lg font-press-start text-red-600 mb-4 uppercase">ABANDON TABLE?</h3>
+               <p className="text-pink-400 font-pixelify text-sm mb-10 leading-relaxed">
+                 Warning: This will terminate the match for ALL players. Are you sure you want to end this game session?
+               </p>
+
+               <div className="flex flex-col gap-3">
+                 <button 
+                   onClick={handleCancelRoom}
+                   className="w-full py-4 bg-red-600 text-white font-press-start text-[10px] uppercase shadow-[4px_4px_0_0_#4A0030] hover:scale-105 active:scale-95 transition-all pixel-border-sm"
+                 >
+                   Yes, End Game
+                 </button>
+                 <button 
+                   onClick={() => setShowLeaveConfirm(false)}
+                   className="w-full py-4 bg-white border-2 border-pink-200 text-pink-400 font-press-start text-[10px] uppercase hover:bg-pink-50 transition-all pixel-border-sm"
+                 >
+                   Stay & Play
+                 </button>
+               </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
