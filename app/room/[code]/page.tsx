@@ -397,7 +397,7 @@ export default function GameRoom() {
       <div className="z-40 w-full bg-gradient-to-t from-white via-white/80 to-transparent pt-8 pb-4 flex flex-col items-center gap-6">
         
         <AnimatePresence>
-            {isMyTurn && (
+            {isMyTurn && gameState.status === "PLAYING" && (
                 <motion.div 
                     initial={{ scale: 0.8, opacity: 0, y: 10 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}

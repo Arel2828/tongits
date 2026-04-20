@@ -164,6 +164,10 @@ class TongitsGame {
         this.hasDrawn = true;
         targetPlayer.sapawLock = true;
         this.updatePoints();
+
+        if (player.hand.length === 0) {
+          this.win(player, 'Tongits');
+        }
         return topCard;
       }
     } else {
@@ -183,6 +187,10 @@ class TongitsGame {
         player.hasMelded = true;
         this.hasDrawn = true;
         this.updatePoints();
+
+        if (player.hand.length === 0) {
+          this.win(player, 'Tongits');
+        }
         return topCard;
       }
     }
@@ -228,6 +236,10 @@ class TongitsGame {
       player.melds.push(potentialMeld);
       player.hasMelded = true;
       this.updatePoints();
+      
+      if (player.hand.length === 0) {
+        this.win(player, 'Tongits');
+      }
       return true;
     }
     return false;
@@ -280,6 +292,10 @@ class TongitsGame {
       player.hasMelded = true; // Sapaw counts as having melded
       targetPlayer.sapawLock = true;
       this.updatePoints();
+
+      if (player.hand.length === 0) {
+        this.win(player, 'Tongits');
+      }
       return true;
     }
     return false;
